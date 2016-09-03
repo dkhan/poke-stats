@@ -1,6 +1,3 @@
 Rails.application.routes.draw do
-  resources :trainers, only: [:index, :show]
-  resources :pokemons, only: [:index, :show]
-
-  root 'trainers#index'
+  # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 end
