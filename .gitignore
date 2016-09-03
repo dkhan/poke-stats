@@ -19,3 +19,7 @@
 
 # Ignore Byebug command history file.
 .byebug_history
+
+# sublime project files
+poke-stats.sublime-project
+poke-stats.sublime-workspace
