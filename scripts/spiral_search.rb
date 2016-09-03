@@ -39,13 +39,17 @@ def print_google_maps_path(coords)
   coords.each { |c| url_string += "#{c[:lat]},#{c[:lng]}|" }
 
   path = HTTPClient.new.get("http://tinyurl.com/api-create.php?url=#{url_string[0..-2]}").body
-  puts "Spiral path on Google Maps: #{path}"
+  puts path
+  File.open('pokemon_data.json', 'a') { |f| f.write "#{path}\n" }
+rescue
+  puts ''
+  File.open('pokemon_data.json', 'a') { |f| f.write "\n" }
 end
 
 def find_poi(client, lat, lng)
-  common = %w(WEEDLE KAKUNA PARAS SPEAROW MAGIKARP GOLDEEN PIDGEY PIDGEOTTO GASTLY ZUBAT RATTATA PSYDUCK DROWZEE CATERPIE VENONAT KRABBY)
+  common = %w(WEEDLE KAKUNA PARAS SPEAROW MAGIKARP GOLDEEN PIDGEY PIDGEOTTO GASTLY ZUBAT RATTATA RATICATE PSYDUCK DROWZEE CATERPIE VENONAT KRABBY)
 
-  step_size = 0.0015
+  step_size = 0.001
   step_limit = 9
 
   coords = generate_spiral(lat, lng, step_size, step_limit)
@@ -68,12 +72,12 @@ def find_poi(client, lat, lng)
     )
 
     resp = client.call
-    puts "\nSearching at lat: #{lat} lng: #{lng}"
+    # puts "\nSearching at lat: #{lat} lng: #{lng}"
 
     if resp.response[:GET_MAP_OBJECTS] && resp.response[:GET_MAP_OBJECTS][:map_cells]
       wild_pokemons = resp.response[:GET_MAP_OBJECTS][:map_cells].map { |x| x[:wild_pokemons] }.flatten
       wild_pokemons.each do |pokemon|
-        next if pokemon[:pokemon_data][:pokemon_id].to_s.in? common
+        # next if pokemon[:pokemon_data][:pokemon_id].to_s.in? common
         poke_data = "#{pokemon[:pokemon_data][:pokemon_id]}: http://maps.google.com/?q=#{pokemon[:latitude]},#{pokemon[:longitude]} --- #{Time.at(pokemon[:last_modified_timestamp_ms] / 1000)} (#{pokemon[:time_till_hidden_ms] / 1000})"
 
           # 'lat' => pokemon[:latitude],
@@ -83,9 +87,8 @@ def find_poi(client, lat, lng)
 
         # Don't show the same pokemon again
         unless pokemon_data[pokemon[:encounter_id]]
-          puts ''
-          puts poke_data
-          File.open('pokemon_data.json', 'a') { |f| f.write "\n#{poke_data}" }
+          puts "#{poke_data}"
+          File.open('pokemon_data.json', 'a') { |f| f.write "#{poke_data}\n" }
         end
 
         pokemon_data[pokemon[:encounter_id]] = poke_data
@@ -99,15 +102,18 @@ end
 Poke::API::Logging.log_level = :UNKNOWN
 
 PLACES = [
-  [42.674256, -71.132277, "YMCA"],
-  [42.662306, -71.163500, "Kirkland Dr"],
-  [42.651668, -71.176150, "Andover Bible Chapel"],
+  [42.673226, -71.132465, "YMCA"],
+  [42.661743, -71.163384, "Kirkland Dr"],
+  [42.648308, -71.182217, "Mobile Dunkin"],
+  [42.661182, -71.145568, "Whole Foods"],
   [42.6733290, -71.1416420, "HOME"]
 ].freeze
 
+File.open('pokemon_data.json', 'w')
+
 PLACES.each do |coord|
-  puts "\n\n#{coord[2]}\n"
-  File.open('pokemon_data.json', 'a') { |f| f.write "\n\n#{coord[2]}\n" }
+  print "\n#{coord[2]}: "
+  File.open('pokemon_data.json', 'a') { |f| f.write "\n#{coord[2]}: " }
 
   client = Poke::API::Client.new
 
@@ -121,4 +127,4 @@ PLACES.each do |coord|
   client.activate_signature('/Users/dkhan/Git/poke-stats/files/encrypt.so')
 
   find_poi(client, client.lat, client.lng)
-end
+end;1
