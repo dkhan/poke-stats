@@ -43,8 +43,10 @@ def print_google_maps_path(coords)
 end
 
 def find_poi(client, lat, lng)
+  common = %w(WEEDLE PARAS SPEAROW MAGIKARP PIDGEY PIDGEOTTO GASTLY ZUBAT RATTATA PSYDUCK DROWZEE CATERPIE VENONAT KRABBY)
+
   step_size = 0.0015
-  step_limit = 49
+  step_limit = 9
 
   coords = generate_spiral(lat, lng, step_size, step_limit)
   print_google_maps_path(coords)
@@ -71,61 +73,71 @@ def find_poi(client, lat, lng)
     if resp.response[:GET_MAP_OBJECTS] && resp.response[:GET_MAP_OBJECTS][:map_cells]
       wild_pokemons = resp.response[:GET_MAP_OBJECTS][:map_cells].map { |x| x[:wild_pokemons] }.flatten
       wild_pokemons.each do |pokemon|
-        poke_data = {
-          'name' => pokemon[:pokemon_data][:pokemon_id],
-          'lat' => pokemon[:latitude],
-          'lng' => pokemon[:longitude],
-          'time_stamp' => pokemon[:last_modified_timestamp_ms],
-          'time_left' => pokemon[:time_till_hidden_ms] / 1000
-        }
+        next if pokemon[:pokemon_data][:pokemon_id].to_s.in? common
+        poke_data = "#{pokemon[:pokemon_data][:pokemon_id]}: http://maps.google.com/?q=#{pokemon[:latitude]},#{pokemon[:longitude]} --- #{Time.at(pokemon[:last_modified_timestamp_ms] / 1000)} (#{pokemon[:time_till_hidden_ms] / 1000})"
+
+          # 'lat' => pokemon[:latitude],
+          # 'lng' => pokemon[:longitude],
+          # 'time_stamp' => pokemon[:last_modified_timestamp_ms],
+          # 'time_left' => pokemon[:time_till_hidden_ms] / 1000
 
         # Don't show the same pokemon again
         unless pokemon_data[pokemon[:encounter_id]]
           puts ''
-          pp poke_data
+          puts poke_data
+          File.open('pokemon_data.json', 'a') { |f| f.write "\n#{poke_data}" }
         end
 
         pokemon_data[pokemon[:encounter_id]] = poke_data
       end
     end
 
-    # Save our data somewhere
-    File.open('pokemon_data.json', 'w') { |f| f.write JSON.pretty_generate(pokemon_data) }
     sleep 5
   end
 end
 
+PLACES = [
+  [42.674256, -71.132277, "YMCA"],
+  [42.662306, -71.163500, "Kirkland Dr"],
+  [42.651668, -71.176150, "Andover Bible Chapel"],
+  [42.6733290, -71.1416420, "HOME"]
+].freeze
+
+PLACES.each do |coord|
+  puts "\n\n#{coord[2]}\n"
+  File.open('pokemon_data.json', 'a') { |f| f.write "\n\n#{coord[2]}\n" }
+
+  lat, lng = coord[0], coord[1]
+
 # Disable logging as it'll just be spammy
-Poke::API::Logging.log_level = :UNKNOWN
+  Poke::API::Logging.log_level = :UNKNOWN
 
-# Instatiate our client
-client = Poke::API::Client.new
+  # Instatiate our client
+  client = Poke::API::Client.new
 
-# Set our location
-# client.store_location('Andover, MA')
+  # # Login
+  # client.login('username', 'password', 'ptc')
 
-# # Login
-# client.login('username', 'password', 'ptc')
+  # # Active signature as required for map_objects
+  # client.activate_signature('/path/to/encrypt/file')
 
-# # Active signature as required for map_objects
-# client.activate_signature('/path/to/encrypt/file')
+  # Set our location
+  # client.store_location('Andover, MA')
 
+  client.store_lat_lng(lat, lng)
 
-lat = 42.6733290
-lng = -71.1416420
-client.store_lat_lng(lat, lng)
+  # Use Google auth with 'username@gmail.com', 'password', 'google'
+  # Optionally set your Google Refresh token using client.refresh_token = 'my-token'
+  client.login('velasystems.owner@gmail.com', '4321Vela', 'google')
 
-# Use Google auth with 'username@gmail.com', 'password', 'google'
-# Optionally set your Google Refresh token using client.refresh_token = 'my-token'
-client.login('velasystems.owner@gmail.com', '4321Vela', 'google')
-
-# Activate the encryption method to generate a signature
-# Where path is the path to your encrypt .so/.dll
-client.activate_signature('/Users/dkhan/Git/poke-stats/files/encrypt.so')
+  # Activate the encryption method to generate a signature
+  # Where path is the path to your encrypt .so/.dll
+  client.activate_signature('/Users/dkhan/Git/poke-stats/files/encrypt.so')
 
 
-# Start spiral search
-find_poi(client, client.lat, client.lng)
+  # Start spiral search
+  find_poi(client, client.lat, client.lng)
+end
 
 # You can implement your own logic to split each iteration of
 #  coords into its own thread using multiple logins with multi
