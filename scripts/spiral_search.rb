@@ -49,8 +49,8 @@ end
 def find_poi(client, lat, lng)
   common = %w(WEEDLE KAKUNA PARAS SPEAROW MAGIKARP GOLDEEN PIDGEY PIDGEOTTO GASTLY ZUBAT RATTATA RATICATE PSYDUCK DROWZEE CATERPIE VENONAT KRABBY)
 
-  step_size = 0.001
-  step_limit = 9
+  step_size = 0.0015
+  step_limit = 2
 
   coords = generate_spiral(lat, lng, step_size, step_limit)
   print_google_maps_path(coords)
@@ -77,7 +77,7 @@ def find_poi(client, lat, lng)
     if resp.response[:GET_MAP_OBJECTS] && resp.response[:GET_MAP_OBJECTS][:map_cells]
       wild_pokemons = resp.response[:GET_MAP_OBJECTS][:map_cells].map { |x| x[:wild_pokemons] }.flatten
       wild_pokemons.each do |pokemon|
-        # next if pokemon[:pokemon_data][:pokemon_id].to_s.in? common
+        next if pokemon[:pokemon_data][:pokemon_id].to_s.in? common
         poke_data = "#{pokemon[:pokemon_data][:pokemon_id]}: http://maps.google.com/?q=#{pokemon[:latitude]},#{pokemon[:longitude]} --- #{Time.at(pokemon[:last_modified_timestamp_ms] / 1000)} (#{pokemon[:time_till_hidden_ms] / 1000})"
 
           # 'lat' => pokemon[:latitude],
@@ -128,3 +128,16 @@ PLACES.each do |coord|
 
   find_poi(client, client.lat, client.lng)
 end;1
+
+Pony.mail(
+  :to => 'khandennis@gmail.com',
+  :from => 'khandennis@gmail.com',
+  :subject => 'pokemons',
+  :body => 'See attachment',
+  :attachments => { "pokemons.json" => File.read("pokemon_data.json") }
+)
+
+# Pony.mail(..., :attachments => {"foo.zip" => File.read("path/to/foo.zip"), "hello.txt" => "hello!"})
+# echo "Test sending email from Postfix" | mail -s "Test Postfix" khandennis@gmail.com
+
+

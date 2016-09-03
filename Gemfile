@@ -31,6 +31,9 @@ gem 'poke-go-api',
   git: "https://github.com/nabeelamjad/poke-api.git",
   tag: '0.2.1'
 
+gem 'pony'
+gem 'sms_fu'
+
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
 
