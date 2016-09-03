@@ -43,7 +43,7 @@ def print_google_maps_path(coords)
 end
 
 def find_poi(client, lat, lng)
-  common = %w(WEEDLE PARAS SPEAROW MAGIKARP PIDGEY PIDGEOTTO GASTLY ZUBAT RATTATA PSYDUCK DROWZEE CATERPIE VENONAT KRABBY)
+  common = %w(WEEDLE KAKUNA PARAS SPEAROW MAGIKARP GOLDEEN PIDGEY PIDGEOTTO GASTLY ZUBAT RATTATA PSYDUCK DROWZEE CATERPIE VENONAT KRABBY)
 
   step_size = 0.0015
   step_limit = 9
@@ -96,6 +96,8 @@ def find_poi(client, lat, lng)
   end
 end
 
+Poke::API::Logging.log_level = :UNKNOWN
+
 PLACES = [
   [42.674256, -71.132277, "YMCA"],
   [42.662306, -71.163500, "Kirkland Dr"],
@@ -107,40 +109,16 @@ PLACES.each do |coord|
   puts "\n\n#{coord[2]}\n"
   File.open('pokemon_data.json', 'a') { |f| f.write "\n\n#{coord[2]}\n" }
 
-  lat, lng = coord[0], coord[1]
-
-# Disable logging as it'll just be spammy
-  Poke::API::Logging.log_level = :UNKNOWN
-
-  # Instatiate our client
   client = Poke::API::Client.new
-
-  # # Login
-  # client.login('username', 'password', 'ptc')
-
-  # # Active signature as required for map_objects
-  # client.activate_signature('/path/to/encrypt/file')
 
   # Set our location
   # client.store_location('Andover, MA')
-
+  lat, lng = coord[0], coord[1]
   client.store_lat_lng(lat, lng)
 
-  # Use Google auth with 'username@gmail.com', 'password', 'google'
-  # Optionally set your Google Refresh token using client.refresh_token = 'my-token'
   client.login('velasystems.owner@gmail.com', '4321Vela', 'google')
 
-  # Activate the encryption method to generate a signature
-  # Where path is the path to your encrypt .so/.dll
   client.activate_signature('/Users/dkhan/Git/poke-stats/files/encrypt.so')
 
-
-  # Start spiral search
   find_poi(client, client.lat, client.lng)
 end
-
-# You can implement your own logic to split each iteration of
-#  coords into its own thread using multiple logins with multi
-#  threading. You would need to utilize Mutex to ensure the data
-#  is thread-safe. A database can also be implemented instead of
-#  using a file to read/write from.
