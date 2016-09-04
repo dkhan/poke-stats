@@ -3,6 +3,7 @@ require 'poke-api'
 
 FILE_NAME = '/Users/dkhan/trash/pokemon_data.html'.freeze
 PLACES = [
+  [42.671630, -71.137836, "Olde Berry Rd"],
   [42.673226, -71.132465, "YMCA"],
   [42.661743, -71.163384, "Kirkland Dr"],
   [42.648308, -71.182217, "Mobile Dunkin"],
@@ -51,7 +52,7 @@ def print_google_maps_path(coords)
 
   path = HTTPClient.new.get("http://tinyurl.com/api-create.php?url=#{url_string[0..-2]}").body
   puts path
-  File.open(FILE_NAME, 'a') { |f| f.write "<a href='#{path}'>Google path</a></br>\n" }
+  File.open(FILE_NAME, 'a') { |f| f.write "<a href='#{path}'>>>></a></br>\n" }
 rescue
   puts ''
   File.open(FILE_NAME, 'a') { |f| f.write "</br>\n" }
