@@ -17,3 +17,5 @@ Pony.mail({
     :domain               => "localhost.localdomain" # the HELO domain provided by the client to the server
   }
 })
+
+RAILS_ROOT = "/Users/dkhan/Git/poke-stats"

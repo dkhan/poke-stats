@@ -107,6 +107,9 @@ def find_poi(client, lat, lng)
           File.open('pokemon_data.html', 'a') { |f| f.write "#{html_poke_data}\n" }
 
           if pokemon_id.to_s.in? rare
+              sms_fu = SMSFu::Client.configure(:delivery => :pony, :pony_config => { :via => :sendmail })
+              sms_fu.deliver("7742327536","at&t",poke_data)
+
               Pony.mail(
                 :to => 'khandennis@gmail.com',
                 :from => 'khandennis@gmail.com',
