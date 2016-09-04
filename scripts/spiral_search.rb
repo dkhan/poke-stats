@@ -48,6 +48,7 @@ end
 
 def find_poi(client, lat, lng)
   common = %w(WEEDLE KAKUNA PARAS SPEAROW MAGIKARP GOLDEEN PIDGEY PIDGEOTTO GASTLY ZUBAT RATTATA RATICATE PSYDUCK DROWZEE CATERPIE VENONAT KRABBY)
+  rare = %w(SNORLAX LAPRAS)
 
   step_size = 0.0015
   step_limit = 2
@@ -78,22 +79,27 @@ def find_poi(client, lat, lng)
       wild_pokemons = resp.response[:GET_MAP_OBJECTS][:map_cells].map { |x| x[:wild_pokemons] }.flatten
       wild_pokemons.each do |pokemon|
         next if pokemon[:pokemon_data][:pokemon_id].to_s.in? common
-        poke_data = "#{pokemon[:pokemon_data][:pokemon_id]}: http://maps.google.com/?q=#{pokemon[:latitude]},#{pokemon[:longitude]} --- #{Time.at(pokemon[:last_modified_timestamp_ms] / 1000)} (#{pokemon[:time_till_hidden_ms] / 1000})"
 
         path = "http://maps.google.com/?q=#{pokemon[:latitude]},#{pokemon[:longitude]}"
         time = Time.at(pokemon[:last_modified_timestamp_ms] / 1000).strftime("%m/%d/%Y %I:%M%p")
         time_left = Time.at(pokemon[:time_till_hidden_ms] / 1000).strftime("%M:%S")
+        poke_data = "#{pokemon[:pokemon_data][:pokemon_id]}: #{path} --- #{time} (left: #{time_left})"
         html_poke_data = "<a href='#{path}'>#{pokemon[:pokemon_data][:pokemon_id]}</a> #{time} (left: #{time_left})</br>\n"
-
-          # 'lat' => pokemon[:latitude],
-          # 'lng' => pokemon[:longitude],
-          # 'time_stamp' => pokemon[:last_modified_timestamp_ms],
-          # 'time_left' => pokemon[:time_till_hidden_ms] / 1000
 
         # Don't show the same pokemon again
         unless pokemon_data[pokemon[:encounter_id]]
           puts "#{poke_data}"
           File.open('pokemon_data.html', 'a') { |f| f.write "#{html_poke_data}\n" }
+
+          if pokemon[:pokemon_data][:pokemon_id].to_s.in? rare
+              Pony.mail(
+                :to => 'khandennis@gmail.com',
+                :from => 'khandennis@gmail.com',
+                :subject => "#{pokemon[:pokemon_data][:pokemon_id]}!!!",
+                :body => poke_data,
+                :html_body => html_poke_data
+              )
+          end
         end
 
         pokemon_data[pokemon[:encounter_id]] = poke_data
@@ -114,40 +120,44 @@ PLACES = [
   [42.6733290, -71.1416420, "HOME"]
 ].freeze
 
-File.open('pokemon_data.html', 'w')
+while true do
+  File.open('pokemon_data.html', 'w')
 
-PLACES.each do |coord|
-  print "\n#{coord[2]}: "
-  File.open('pokemon_data.html', 'a') { |f| f.write "\n</br>#{coord[2]}: " }
+  PLACES.each do |coord|
+    print "\n#{coord[2]}: "
+    File.open('pokemon_data.html', 'a') { |f| f.write "\n</br>#{coord[2]}: " }
 
-  client = Poke::API::Client.new
+    client = Poke::API::Client.new
 
-  # Set our location
-  # client.store_location('Andover, MA')
-  lat, lng = coord[0], coord[1]
-  client.store_lat_lng(lat, lng)
+    # Set our location
+    # client.store_location('Andover, MA')
+    lat, lng = coord[0], coord[1]
+    client.store_lat_lng(lat, lng)
 
-  client.login('velasystems.owner@gmail.com', '4321Vela', 'google')
+    begin
+      client.login('velasystems.owner@gmail.com', '4321Vela', 'google')
 
-  client.activate_signature('/Users/dkhan/Git/poke-stats/files/encrypt.so')
+      client.activate_signature('/Users/dkhan/Git/poke-stats/files/encrypt.so')
 
-  find_poi(client, client.lat, client.lng)
-end;1
+      find_poi(client, client.lat, client.lng)
+    rescue
+      puts "Google login problem"
+      File.open('pokemon_data.html', 'a') { |f| f.write "Google login problem</br>\n" }
+    end
+  end;1
 
-file = File.open('pokemon_data.html')
-contents = ""
-file.each { |line| contents << line }
+  file = File.open('pokemon_data.html')
+  contents = ""
+  file.each { |line| contents << line }
 
-Pony.mail(
-  :to => 'khandennis@gmail.com',
-  :from => 'khandennis@gmail.com',
-  :subject => 'pokemons',
-  :body => 'See attachment',
-  :html_body => contents,
-  :attachments => { "pokemons.html" => File.read("pokemon_data.html") }
-)
+  Pony.mail(
+    :to => 'khandennis@gmail.com',
+    :from => 'khandennis@gmail.com',
+    :subject => 'pokemons',
+    :body => 'See attachment',
+    :html_body => contents,
+    :attachments => { "pokemons.html" => File.read("pokemon_data.html") }
+  )
 
-# Pony.mail(..., :attachments => {"foo.zip" => File.read("path/to/foo.zip"), "hello.txt" => "hello!"})
-# echo "Test sending email from Postfix" | mail -s "Test Postfix" khandennis@gmail.com
-
-
+  sleep 600
+end
