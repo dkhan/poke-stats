@@ -51,7 +51,7 @@ def find_poi(client, lat, lng)
   rare = %w(SNORLAX LAPRAS)
 
   step_size = 0.0015
-  step_limit = 1
+  step_limit = 9
 
   coords = generate_spiral(lat, lng, step_size, step_limit)
   print_google_maps_path(coords)
@@ -128,10 +128,10 @@ end
 Poke::API::Logging.log_level = :UNKNOWN
 
 PLACES = [
-   # [42.673226, -71.132465, "YMCA"],
-  # [42.661743, -71.163384, "Kirkland Dr"],
-  # [42.648308, -71.182217, "Mobile Dunkin"],
-  # [42.661182, -71.145568, "Whole Foods"],
+  [42.673226, -71.132465, "YMCA"],
+  [42.661743, -71.163384, "Kirkland Dr"],
+  [42.648308, -71.182217, "Mobile Dunkin"],
+  [42.661182, -71.145568, "Whole Foods"],
   [42.673362, -71.141776, "HOME"]
 ].freeze
 
@@ -149,16 +149,16 @@ while true do
     lat, lng = coord[0], coord[1]
     client.store_lat_lng(lat, lng)
 
-    #begin
+    begin
       client.login('velasystems.owner@gmail.com', '4321Vela', 'google')
 
       client.activate_signature('/Users/dkhan/Git/poke-stats/files/encrypt.so')
 
       find_poi(client, client.lat, client.lng)
-    # rescue
-    #   puts "Probably Google login problem"
-    #   File.open('pokemon_data.html', 'a') { |f| f.write "Google login problem</br>\n" }
-    # end
+    rescue
+      puts "Probably Google login problem"
+      File.open('pokemon_data.html', 'a') { |f| f.write "Google login problem</br>\n" }
+    end
   end;1
 
   file = File.open('pokemon_data.html')
