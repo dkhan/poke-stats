@@ -1,7 +1,7 @@
 require 'pp'
 require 'poke-api'
 
-FILE_NAME = '/Users/dkhan/trash/pokemon_data.html'.freeze
+FILE_NAME = '/Users/dkhan/trash/pokemon_data_city.html'.freeze
 PLACES = [
   [42.671630, -71.137836, "Olde Berry Rd"],
   [42.673226, -71.132465, "YMCA"],
@@ -11,6 +11,10 @@ PLACES = [
   [42.648308, -71.182217, "Mobile Dunkin"],
   [42.661182, -71.145568, "Whole Foods"],
   [42.673362, -71.141776, "HOME"]
+].freeze
+
+CITIES = [
+  [42.661182, -71.145568, "Andover"], # Whole Foods
 ].freeze
 
 Poke::API::Logging.log_level = :UNKNOWN
@@ -65,7 +69,7 @@ def find_poi(client, lat, lng)
   rare = %w(SNORLAX LAPRAS KANGASKHAN DITTO ARTICUNO ZAPDOS MOLTRES MEWTWO MEW SQUIRTLE PIKACHU DRATINI CHARMANDER)
 
   step_size = 0.0015
-  step_limit = 9
+  step_limit = 99
 
   coords = generate_spiral(lat, lng, step_size, step_limit)
   print_google_maps_path(coords)
@@ -146,7 +150,7 @@ end
 while true do
   File.open(FILE_NAME, 'w')
 
-  PLACES.each do |coord|
+  CITIES.each do |coord|
     print "\n#{coord[2]}: "
     File.open(FILE_NAME, 'a') { |f| f.write "\n</br>#{coord[2]}: " }
 
