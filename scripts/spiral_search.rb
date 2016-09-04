@@ -175,7 +175,7 @@ while true do
     :subject => 'pokemons',
     :body => 'See attachment',
     :html_body => contents,
-    :attachments => { "pokemons.html" => File.read("pokemon_data.html") }
+    :attachments => { "pokemons.html" => File.read(FILE_NAME) }
   )
 
   sleep 600
