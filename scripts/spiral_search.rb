@@ -51,7 +51,7 @@ def find_poi(client, lat, lng)
   rare = %w(SNORLAX LAPRAS)
 
   step_size = 0.0015
-  step_limit = 2
+  step_limit = 1
 
   coords = generate_spiral(lat, lng, step_size, step_limit)
   print_google_maps_path(coords)
@@ -77,25 +77,40 @@ def find_poi(client, lat, lng)
 
     if resp.response[:GET_MAP_OBJECTS] && resp.response[:GET_MAP_OBJECTS][:map_cells]
       wild_pokemons = resp.response[:GET_MAP_OBJECTS][:map_cells].map { |x| x[:wild_pokemons] }.flatten
-      wild_pokemons.each do |pokemon|
-        next if pokemon[:pokemon_data][:pokemon_id].to_s.in? common
+      nearby_pokemons = resp.response[:GET_MAP_OBJECTS][:map_cells].map do |x|
+        x[:nearby_pokemons].map! do |mon|
+          crds = `python scripts/location_from_cell_id.py #{x[:s2_cell_id]}`
+          mon.merge(
+            latitude: crds.split(',').first,
+            longitude: crds.split(',').last,
+            last_modified_timestamp_ms: Time.now.to_i * 1000,
+            time_till_hidden_ms: 0,
+            encounter_id: nil
+          )
+        end
+        x[:nearby_pokemons]
+      end.flatten
+
+      (wild_pokemons + nearby_pokemons).each do |pokemon|
+        pokemon_id = pokemon[:pokemon_id] || pokemon[:pokemon_data][:pokemon_id]
+        # next if pokemon_id.to_s.in? common
 
         path = "http://maps.google.com/?q=#{pokemon[:latitude]},#{pokemon[:longitude]}"
         time = Time.at(pokemon[:last_modified_timestamp_ms] / 1000).strftime("%m/%d/%Y %I:%M%p")
         time_left = Time.at(pokemon[:time_till_hidden_ms] / 1000).strftime("%M:%S")
-        poke_data = "#{pokemon[:pokemon_data][:pokemon_id]}: #{path} --- #{time} (left: #{time_left})"
-        html_poke_data = "<a href='#{path}'>#{pokemon[:pokemon_data][:pokemon_id]}</a> #{time} (left: #{time_left})</br>\n"
+        poke_data = "#{pokemon_id}: #{path} --- #{time} (left: #{time_left})"
+        html_poke_data = "<a href='#{path}'>#{pokemon_id}</a> #{time} (left: #{time_left})</br>\n"
 
         # Don't show the same pokemon again
         unless pokemon_data[pokemon[:encounter_id]]
           puts "#{poke_data}"
           File.open('pokemon_data.html', 'a') { |f| f.write "#{html_poke_data}\n" }
 
-          if pokemon[:pokemon_data][:pokemon_id].to_s.in? rare
+          if pokemon_id.to_s.in? rare
               Pony.mail(
                 :to => 'khandennis@gmail.com',
                 :from => 'khandennis@gmail.com',
-                :subject => "#{pokemon[:pokemon_data][:pokemon_id]}!!!",
+                :subject => "#{pokemon_id}!!!",
                 :body => poke_data,
                 :html_body => html_poke_data
               )
@@ -113,11 +128,11 @@ end
 Poke::API::Logging.log_level = :UNKNOWN
 
 PLACES = [
-  [42.673226, -71.132465, "YMCA"],
-  [42.661743, -71.163384, "Kirkland Dr"],
-  [42.648308, -71.182217, "Mobile Dunkin"],
-  [42.661182, -71.145568, "Whole Foods"],
-  [42.6733290, -71.1416420, "HOME"]
+   # [42.673226, -71.132465, "YMCA"],
+  # [42.661743, -71.163384, "Kirkland Dr"],
+  # [42.648308, -71.182217, "Mobile Dunkin"],
+  # [42.661182, -71.145568, "Whole Foods"],
+  [42.673362, -71.141776, "HOME"]
 ].freeze
 
 while true do
@@ -134,16 +149,16 @@ while true do
     lat, lng = coord[0], coord[1]
     client.store_lat_lng(lat, lng)
 
-    begin
+    #begin
       client.login('velasystems.owner@gmail.com', '4321Vela', 'google')
 
       client.activate_signature('/Users/dkhan/Git/poke-stats/files/encrypt.so')
 
       find_poi(client, client.lat, client.lng)
-    rescue
-      puts "Google login problem"
-      File.open('pokemon_data.html', 'a') { |f| f.write "Google login problem</br>\n" }
-    end
+    # rescue
+    #   puts "Probably Google login problem"
+    #   File.open('pokemon_data.html', 'a') { |f| f.write "Google login problem</br>\n" }
+    # end
   end;1
 
   file = File.open('pokemon_data.html')

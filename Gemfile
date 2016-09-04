@@ -33,6 +33,7 @@ gem 'poke-go-api',
 
 gem 'pony'
 gem 'sms_fu'
+gem 'pry-byebug'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
