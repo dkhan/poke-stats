@@ -1,6 +1,17 @@
 require 'pp'
 require 'poke-api'
 
+FILE_NAME = '/Users/dkhan/trash/pokemon_data.html'.freeze
+PLACES = [
+  [42.673226, -71.132465, "YMCA"],
+  [42.661743, -71.163384, "Kirkland Dr"],
+  [42.648308, -71.182217, "Mobile Dunkin"],
+  [42.661182, -71.145568, "Whole Foods"],
+  [42.673362, -71.141776, "HOME"]
+].freeze
+
+Poke::API::Logging.log_level = :UNKNOWN
+
 def generate_spiral(starting_lat, starting_lng, step_size, step_limit)
   coords = [{ lat: starting_lat, lng: starting_lng }]
   steps = 1
@@ -40,15 +51,15 @@ def print_google_maps_path(coords)
 
   path = HTTPClient.new.get("http://tinyurl.com/api-create.php?url=#{url_string[0..-2]}").body
   puts path
-  File.open('pokemon_data.html', 'a') { |f| f.write "<a href='#{path}'>Google path</a></br>\n" }
+  File.open(FILE_NAME, 'a') { |f| f.write "<a href='#{path}'>Google path</a></br>\n" }
 rescue
   puts ''
-  File.open('pokemon_data.html', 'a') { |f| f.write "</br>\n" }
+  File.open(FILE_NAME, 'a') { |f| f.write "</br>\n" }
 end
 
 def find_poi(client, lat, lng)
-  common = %w(WEEDLE KAKUNA PARAS SPEAROW MAGIKARP GOLDEEN PIDGEY PIDGEOTTO GASTLY ZUBAT RATTATA RATICATE PSYDUCK DROWZEE CATERPIE VENONAT KRABBY)
-  rare = %w(SNORLAX LAPRAS)
+  common = %w(WEEDLE KAKUNA PARAS SPEAROW MAGIKARP GOLDEEN PIDGEY PIDGEOTTO GASTLY ZUBAT RATTATA RATICATE PSYDUCK DROWZEE CATERPIE VENONAT KRABBY STARYU)
+  rare = %w(SNORLAX LAPRAS KANGASKHAN DITTO ARTICUNO ZAPDOS MOLTRES MEWTWO MEW)
 
   step_size = 0.0015
   step_limit = 9
@@ -93,7 +104,7 @@ def find_poi(client, lat, lng)
 
       (wild_pokemons + nearby_pokemons).each do |pokemon|
         pokemon_id = pokemon[:pokemon_id] || pokemon[:pokemon_data][:pokemon_id]
-        # next if pokemon_id.to_s.in? common
+        next if pokemon_id.to_s.in? common
 
         path = "http://maps.google.com/?q=#{pokemon[:latitude]},#{pokemon[:longitude]}"
         time = Time.at(pokemon[:last_modified_timestamp_ms] / 1000).strftime("%m/%d/%Y %I:%M%p")
@@ -104,7 +115,7 @@ def find_poi(client, lat, lng)
         # Don't show the same pokemon again
         unless pokemon_data[pokemon[:encounter_id]]
           puts "#{poke_data}"
-          File.open('pokemon_data.html', 'a') { |f| f.write "#{html_poke_data}\n" }
+          File.open(FILE_NAME, 'a') { |f| f.write "#{html_poke_data}\n" }
 
           if pokemon_id.to_s.in? rare
               sms_fu = SMSFu::Client.configure(:delivery => :pony, :pony_config => { :via => :sendmail })
@@ -128,22 +139,12 @@ def find_poi(client, lat, lng)
   end
 end
 
-Poke::API::Logging.log_level = :UNKNOWN
-
-PLACES = [
-  [42.673226, -71.132465, "YMCA"],
-  [42.661743, -71.163384, "Kirkland Dr"],
-  [42.648308, -71.182217, "Mobile Dunkin"],
-  [42.661182, -71.145568, "Whole Foods"],
-  [42.673362, -71.141776, "HOME"]
-].freeze
-
 while true do
-  File.open('pokemon_data.html', 'w')
+  File.open(FILE_NAME, 'w')
 
   PLACES.each do |coord|
     print "\n#{coord[2]}: "
-    File.open('pokemon_data.html', 'a') { |f| f.write "\n</br>#{coord[2]}: " }
+    File.open(FILE_NAME, 'a') { |f| f.write "\n</br>#{coord[2]}: " }
 
     client = Poke::API::Client.new
 
@@ -160,11 +161,11 @@ while true do
       find_poi(client, client.lat, client.lng)
     rescue
       puts "Probably Google login problem"
-      File.open('pokemon_data.html', 'a') { |f| f.write "Google login problem</br>\n" }
+      File.open(FILE_NAME, 'a') { |f| f.write "Google login problem</br>\n" }
     end
   end;1
 
-  file = File.open('pokemon_data.html')
+  file = File.open(FILE_NAME)
   contents = ""
   file.each { |line| contents << line }
 
