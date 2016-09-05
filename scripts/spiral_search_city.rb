@@ -7,12 +7,15 @@ PLACES = [
   [42.673226, -71.132465, "YMCA"],
   [42.684305, -71.136160, "Market Basket"],
   [42.664660, -71.144548, "Stop & Shop"],
-  [42.666316, -71.146095, "Washington Park Dr - Dratini"],
-  [42.661743, -71.163384, "Kirkland Dr"],
-  [42.660104, -71.161190, "Leah Way - Snorlax"],
-  [42.648308, -71.182217, "Mobile Dunkin"],
+  [42.663526, -71.144554, "McDonald's"],
   [42.661182, -71.145568, "Whole Foods"],
-  [42.673362, -71.141776, "HOME"]
+  [42.661969, -71.147665, "Post Office"],
+  [42.666316, -71.146095, "Washington Park Dr (Dratini)"],
+  [42.661743, -71.163384, "Kirkland Dr"],
+  [42.660104, -71.161190, "Leah Way (Snorlax)"],
+  [42.648308, -71.182217, "Mobile Dunkin"],
+  [42.673548, -71.143517, "Enmore St"],
+  #[42.673362, -71.141776, "HOME"],
 ].freeze
 
 CITIES = [
@@ -71,7 +74,7 @@ def find_poi(client, lat, lng)
   rare = %w(SNORLAX LAPRAS GYARADOS KANGASKHAN DITTO ARTICUNO ZAPDOS MOLTRES MEWTWO MEW SQUIRTLE WARTORTLE BULBASAUR PIKACHU RAICHU DRATINI DRAGONAIR DRAGONITE CHARMANDER CHARMELEON BULBASAUR IVYSAUR VENUSAUR GROWLITHE)
   wanted = %w(SNORLAX LAPRAS KANGASKHAN DITTO ARTICUNO ZAPDOS MOLTRES MEWTWO MEW)
 
-  step_size = 0.0010
+  step_size = 0.0015
   step_limit = 399
 
   coords = generate_spiral(lat, lng, step_size, step_limit)
