@@ -3,11 +3,7 @@ require 'poke-api'
 
 FILE_NAME = '/Users/dkhan/trash/pokemon_data_point.html'.freeze
 PLACES = [
-  [42.6763091132,-71.1314830635, "single point"],
-].freeze
-
-CITIES = [
-  [42.661182, -71.145568, "Andover"], # Whole Foods
+  [42.6624664971,-71.1611903189, "single point"],
 ].freeze
 
 Poke::API::Logging.log_level = :UNKNOWN
