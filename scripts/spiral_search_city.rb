@@ -67,10 +67,11 @@ end
 
 def find_poi(client, lat, lng)
   common = %w(SHELLDER WEEDLE KAKUNA PARAS SPEAROW MAGIKARP GOLDEEN PIDGEY PIDGEOTTO PIDGEOT POLIWAG METAPOD GASTLY ZUBAT RATTATA RATICATE PSYDUCK DROWZEE CATERPIE VENONAT KRABBY STARYU)
-  rare = %w(SNORLAX LAPRAS GYARADOS KANGASKHAN DITTO ARTICUNO ZAPDOS MOLTRES MEWTWO MEW SQUIRTLE WARTORTLE BULBASAUR PIKACHU RAICHU DRATINI DRAGONAIR DRAGONITE CHARMANDER CHARMELEON BULBASAUR IVYSAUR VENUSAUR)
+  rare = %w(SNORLAX LAPRAS GYARADOS KANGASKHAN DITTO ARTICUNO ZAPDOS MOLTRES MEWTWO MEW SQUIRTLE WARTORTLE BULBASAUR PIKACHU RAICHU DRATINI DRAGONAIR DRAGONITE CHARMANDER CHARMELEON BULBASAUR IVYSAUR VENUSAUR GROWLITHE)
+  wanted = %w(SNORLAX LAPRAS KANGASKHAN DITTO ARTICUNO ZAPDOS MOLTRES MEWTWO MEW)
 
-  step_size = 0.0015
-  step_limit = 299
+  step_size = 0.0010
+  step_limit = 399
 
   coords = generate_spiral(lat, lng, step_size, step_limit)
   print_google_maps_path(coords)
@@ -128,7 +129,7 @@ def find_poi(client, lat, lng)
           if pokemon_id.to_s.in? rare
               sms_fu = SMSFu::Client.configure(:delivery => :pony, :pony_config => { :via => :sendmail })
               sms_fu.deliver("7742327536","at&t",poke_data)
-              sms_fu.deliver("5088735603","at&t",poke_data)
+              sms_fu.deliver("5088735603","at&t",poke_data) # if pokemon_id.to_s == "SNORLAX"
 
               Pony.mail(
                 :to => 'khandennis@gmail.com,khanalena@gmail.com',

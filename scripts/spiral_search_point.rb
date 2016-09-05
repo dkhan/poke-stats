@@ -3,7 +3,7 @@ require 'poke-api'
 
 FILE_NAME = '/Users/dkhan/trash/pokemon_data_point.html'.freeze
 PLACES = [
-  [42.6594344393,-71.1433662324, "single point"],
+  [42.6763091132,-71.1314830635, "single point"],
 ].freeze
 
 CITIES = [
@@ -59,10 +59,10 @@ end
 
 def find_poi(client, lat, lng)
   common = %w(SHELLDER WEEDLE KAKUNA PARAS SPEAROW MAGIKARP GOLDEEN PIDGEY PIDGEOTTO PIDGEOT POLIWAG METAPOD GASTLY ZUBAT RATTATA RATICATE PSYDUCK DROWZEE CATERPIE VENONAT KRABBY STARYU)
-  rare = %w(SNORLAX LAPRAS GYARADOS KANGASKHAN DITTO ARTICUNO ZAPDOS MOLTRES MEWTWO MEW SQUIRTLE WARTORTLE BULBASAUR PIKACHU RAICHU DRATINI DRAGONAIR DRAGONITE CHARMANDER CHARMELEON BULBASAUR IVYSAUR VENUSAUR)
+  rare = %w(SNORLAX LAPRAS GYARADOS KANGASKHAN DITTO ARTICUNO ZAPDOS MOLTRES MEWTWO MEW SQUIRTLE WARTORTLE BULBASAUR PIKACHU RAICHU DRATINI DRAGONAIR DRAGONITE CHARMANDER CHARMELEON BULBASAUR IVYSAUR VENUSAUR GROWLITHE)
 
-  step_size = 0.0005
-  step_limit = 49
+  step_size = 0.0015
+  step_limit = 99
 
   coords = generate_spiral(lat, lng, step_size, step_limit)
   print_google_maps_path(coords)
@@ -120,7 +120,7 @@ def find_poi(client, lat, lng)
           if pokemon_id.to_s.in? rare
               sms_fu = SMSFu::Client.configure(:delivery => :pony, :pony_config => { :via => :sendmail })
               sms_fu.deliver("7742327536","at&t",poke_data)
-              sms_fu.deliver("5088735603","at&t",poke_data)
+              sms_fu.deliver("5088735603","at&t",poke_data) # if pokemon_id.to_s == "SNORLAX"
 
               Pony.mail(
                 :to => 'khandennis@gmail.com,khanalena@gmail.com',

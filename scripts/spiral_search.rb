@@ -67,7 +67,7 @@ end
 
 def find_poi(client, lat, lng)
   common = %w(SHELLDER WEEDLE KAKUNA PARAS SPEAROW MAGIKARP GOLDEEN PIDGEY PIDGEOTTO PIDGEOT POLIWAG METAPOD GASTLY ZUBAT RATTATA RATICATE PSYDUCK DROWZEE CATERPIE VENONAT KRABBY STARYU)
-  rare = %w(SNORLAX LAPRAS GYARADOS KANGASKHAN DITTO ARTICUNO ZAPDOS MOLTRES MEWTWO MEW SQUIRTLE WARTORTLE BULBASAUR PIKACHU RAICHU DRATINI DRAGONAIR DRAGONITE CHARMANDER CHARMELEON BULBASAUR IVYSAUR VENUSAUR)
+  rare = %w(SNORLAX LAPRAS GYARADOS KANGASKHAN DITTO ARTICUNO ZAPDOS MOLTRES MEWTWO MEW SQUIRTLE WARTORTLE BULBASAUR PIKACHU RAICHU DRATINI DRAGONAIR DRAGONITE CHARMANDER CHARMELEON BULBASAUR IVYSAUR VENUSAUR GROWLITHE)
 
   step_size = 0.0015
   step_limit = 9
@@ -128,7 +128,7 @@ def find_poi(client, lat, lng)
           if pokemon_id.to_s.in? rare
               sms_fu = SMSFu::Client.configure(:delivery => :pony, :pony_config => { :via => :sendmail })
               sms_fu.deliver("7742327536","at&t",poke_data)
-              sms_fu.deliver("5088735603","at&t",poke_data)
+              sms_fu.deliver("5088735603","at&t",poke_data) # if pokemon_id.to_s == "SNORLAX"
 
               Pony.mail(
                 :to => 'khandennis@gmail.com,khanalena@gmail.com',
