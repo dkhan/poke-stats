@@ -11,8 +11,7 @@ client = Poke::API::Client.new
 # or using client.lat = 10, client.lng = 10, client.alt = 10
 # client.store_location('New York')
 
-lat = 42.6733290
-lng = -71.1416420
+lat, lng = 42.669662, -71.131104
 client.store_lat_lng(lat, lng)
 
 # Use Google auth with 'username@gmail.com', 'password', 'google'

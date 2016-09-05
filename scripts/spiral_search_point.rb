@@ -1,17 +1,9 @@
 require 'pp'
 require 'poke-api'
 
-FILE_NAME = '/Users/dkhan/trash/pokemon_data_city.html'.freeze
+FILE_NAME = '/Users/dkhan/trash/pokemon_data_point.html'.freeze
 PLACES = [
-  [42.671630, -71.137836, "Olde Berry Rd"],
-  [42.673226, -71.132465, "YMCA"],
-  [42.684305, -71.136160, "Market Basket"],
-  [42.664660, -71.144548, "Stop & Shop"],
-  [42.661743, -71.163384, "Kirkland Dr"],
-  [42.660104, -71.161190, "Leah Way"],
-  [42.648308, -71.182217, "Mobile Dunkin"],
-  [42.661182, -71.145568, "Whole Foods"],
-  [42.673362, -71.141776, "HOME"]
+  [42.6594344393,-71.1433662324, "single point"],
 ].freeze
 
 CITIES = [
@@ -69,8 +61,8 @@ def find_poi(client, lat, lng)
   common = %w(SHELLDER WEEDLE KAKUNA PARAS SPEAROW MAGIKARP GOLDEEN PIDGEY PIDGEOTTO PIDGEOT POLIWAG METAPOD GASTLY ZUBAT RATTATA RATICATE PSYDUCK DROWZEE CATERPIE VENONAT KRABBY STARYU)
   rare = %w(SNORLAX LAPRAS GYARADOS KANGASKHAN DITTO ARTICUNO ZAPDOS MOLTRES MEWTWO MEW SQUIRTLE WARTORTLE BULBASAUR PIKACHU RAICHU DRATINI DRAGONAIR DRAGONITE CHARMANDER CHARMELEON BULBASAUR IVYSAUR VENUSAUR)
 
-  step_size = 0.0015
-  step_limit = 299
+  step_size = 0.0005
+  step_limit = 49
 
   coords = generate_spiral(lat, lng, step_size, step_limit)
   print_google_maps_path(coords)
@@ -151,7 +143,7 @@ end
 while true do
   File.open(FILE_NAME, 'w')
 
-  CITIES.each do |coord|
+  PLACES.each do |coord|
     print "\n#{coord[2]}: "
     File.open(FILE_NAME, 'a') { |f| f.write "\n</br>#{coord[2]}: " }
 
