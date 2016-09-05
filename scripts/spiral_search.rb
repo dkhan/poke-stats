@@ -9,7 +9,7 @@ PLACES = [
   [42.664660, -71.144548, "Stop & Shop"],
   [42.663526, -71.144554, "McDonald's"],
   [42.661182, -71.145568, "Whole Foods"],
-  [42.661969, -71.147665, "Post Office"],
+  [42.662406, -71.146854, "Post Office"],
   [42.666316, -71.146095, "Washington Park Dr (Dratini)"],
   [42.661743, -71.163384, "Kirkland Dr"],
   [42.660104, -71.161190, "Leah Way (Snorlax)"],
