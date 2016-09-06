@@ -58,7 +58,7 @@ rescue
   File.open(FILE_NAME, 'a') { |f| f.write "</br>\n" }
 end
 
-def find_poi(client, lat, lng)
+def find_poi(client, lat, lng, logged_pokemons)
   common = %w(SHELLDER WEEDLE KAKUNA PARAS SPEAROW MAGIKARP GOLDEEN PIDGEY PIDGEOTTO PIDGEOT POLIWAG POLIWHIRL POLIWRATH CATERPIE METAPOD BUTTERFREE GASTLY ZUBAT RATTATA RATICATE PSYDUCK DROWZEE VENONAT KRABBY STARYU MAGNEMITE MAGNETON VOLTORB ELECTRODE TENTACOOL TENTACRUEL HORSEA VULPIX)
   rare = %w(SNORLAX LAPRAS GYARADOS KANGASKHAN DITTO ARTICUNO ZAPDOS MOLTRES MEWTWO MEW SQUIRTLE WARTORTLE BLASTOISE PIKACHU RAICHU GEODUDE GRAVLER GOLEM PONYTA RAPIDASH DRATINI DRAGONAIR DRAGONITE CHARMANDER CHARMELEON CHARIZARD BULBASAUR IVYSAUR VENUSAUR EKANS ARBOK GROWLITHE ARCANINE MACHOP MACHOKE MACHAMP MANKEY PRIMEAPE ONYX EXEGGCUTE EXEGGUTOR CHANSEY PORYGON AERODACTYL KABUTO KABUTOPS OMANYTE OMASTAR PINSIR MAGMAR MR_MIME TANGELA KOFFING WEEZING LICKTUNG HITMONCHAN HITMONLEE CUBONE MAROWAK)
   legend = %w(SNORLAX LAPRAS KANGASKHAN DITTO ARTICUNO ZAPDOS MOLTRES MEWTWO MEW)
@@ -109,13 +109,17 @@ def find_poi(client, lat, lng)
         next if pokemon_id.to_s.in? common
 
         path = "http://maps.google.com/?q=#{pokemon[:latitude]},#{pokemon[:longitude]}"
-        time = Time.at(pokemon[:last_modified_timestamp_ms] / 1000).strftime("%m/%d/%Y %I:%M%p")
-        time_left = Time.at(pokemon[:time_till_hidden_ms] / 1000).strftime("%M:%S")
-        poke_data = "#{pokemon_id}: #{path} --- #{time} (left: #{time_left})"
-        html_poke_data = "<a href='#{path}'>#{pokemon_id}</a> #{time} (left: #{time_left})</br>\n"
+        disappears_at =
+        if pokemon[:time_till_hidden_ms] > 0
+          Time.at((pokemon[:last_modified_timestamp_ms] + pokemon[:time_till_hidden_ms]) / 1000).strftime("%m/%d/%Y %I:%M%p")
+        else
+          "UNKNOWN"
+        end
+        poke_data = "#{pokemon_id}: #{path} disappears: #{disappears_at}"
+        html_poke_data = "<a href='#{path}'>#{pokemon_id}</a> disappears: #{disappears_at}</br>\n"
 
         # Don't show the same pokemon again
-        unless pokemon_data[pokemon[:encounter_id]]
+        if pokemon_data[pokemon[:encounter_id]].blank? && !logged_pokemons.include?(poke_data)
           puts "#{poke_data}"
           File.open(FILE_NAME, 'a') { |f| f.write "#{html_poke_data}\n" }
 
@@ -133,7 +137,9 @@ def find_poi(client, lat, lng)
               sms_fu.deliver("7742327536","at&t",poke_data)
               # sms_fu.deliver("5088735603","at&t",poke_data)
             end
+
           end
+          logged_pokemons << poke_data
         end
 
         pokemon_data[pokemon[:encounter_id]] = poke_data
@@ -142,7 +148,11 @@ def find_poi(client, lat, lng)
 
     sleep 5
   end
+
+  logged_pokemons
 end
+
+logged_pokemons = []
 
 while true do
   File.open(FILE_NAME, 'w')
@@ -163,7 +173,7 @@ while true do
 
       client.activate_signature('/Users/dkhan/Git/poke-stats/files/encrypt.so')
 
-      find_poi(client, client.lat, client.lng)
+      logged_pokemons = find_poi(client, client.lat, client.lng, logged_pokemons)
     rescue
       puts "Probably Google login problem"
       File.open(FILE_NAME, 'a') { |f| f.write "Google login problem</br>\n" }
@@ -189,5 +199,5 @@ while true do
   )
 
   puts "-"*120
-  sleep 300
+  # sleep 300
 end
