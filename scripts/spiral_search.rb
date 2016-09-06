@@ -2,6 +2,7 @@ require 'pp'
 require 'poke-api'
 
 FILE_NAME = '/Users/dkhan/trash/pokemon_data.html'.freeze
+LOG_FILE_NAME = '/Users/dkhan/trash/pokemon_data_log.html'.freeze
 PLACES = [
   [42.671630, -71.137836, "Olde Berry Rd"],
   [42.673226, -71.132465, "YMCA"],
@@ -182,13 +183,18 @@ while true do
   contents = ""
   file.each { |line| contents << line }
 
+  log = File.read(FILE_NAME)
+  File.open(LOG_FILE_NAME, 'a') do |handle|
+    handle.puts log
+  end
+
   Pony.mail(
     :to => 'khandennis@gmail.com,khanalena@gmail.com',
     :from => 'khandennis@gmail.com',
     :subject => 'pokemons',
     :body => 'See attachment',
     :html_body => contents,
-    :attachments => { "pokemons.html" => File.read(FILE_NAME) }
+    :attachments => { "pokemons.html" => log }
   )
 
   puts "-"*120
