@@ -73,6 +73,7 @@ end
 def find_poi(client, lat, lng)
   common = %w(SHELLDER WEEDLE KAKUNA PARAS SPEAROW MAGIKARP GOLDEEN PIDGEY PIDGEOTTO PIDGEOT POLIWAG METAPOD GASTLY ZUBAT RATTATA RATICATE PSYDUCK DROWZEE CATERPIE VENONAT KRABBY STARYU)
   rare = %w(SNORLAX LAPRAS GYARADOS KANGASKHAN DITTO ARTICUNO ZAPDOS MOLTRES MEWTWO MEW SQUIRTLE WARTORTLE BULBASAUR PIKACHU RAICHU DRATINI DRAGONAIR DRAGONITE CHARMANDER CHARMELEON BULBASAUR IVYSAUR VENUSAUR GROWLITHE)
+  legend = %w(SNORLAX LAPRAS KANGASKHAN DITTO ARTICUNO ZAPDOS MOLTRES MEWTWO MEW)
 
   step_size = 0.001
   step_limit = 9
@@ -131,17 +132,19 @@ def find_poi(client, lat, lng)
           File.open(FILE_NAME, 'a') { |f| f.write "#{html_poke_data}\n" }
 
           if pokemon_id.to_s.in? rare
+            Pony.mail(
+              :to => 'khandennis@gmail.com,khanalena@gmail.com',
+              :from => 'khandennis@gmail.com',
+              :subject => "#{pokemon_id}!!!",
+              :body => poke_data,
+              :html_body => html_poke_data
+            )
+
+            if pokemon_id.to_s.in? legend # night time
               sms_fu = SMSFu::Client.configure(:delivery => :pony, :pony_config => { :via => :sendmail })
               sms_fu.deliver("7742327536","at&t",poke_data)
-              sms_fu.deliver("5088735603","at&t",poke_data) # if pokemon_id.to_s == "SNORLAX"
-
-              Pony.mail(
-                :to => 'khandennis@gmail.com,khanalena@gmail.com',
-                :from => 'khandennis@gmail.com',
-                :subject => "#{pokemon_id}!!!",
-                :body => poke_data,
-                :html_body => html_poke_data
-              )
+              sms_fu.deliver("5088735603","at&t",poke_data)
+            end
           end
         end
 
@@ -179,23 +182,23 @@ while true do
     end
   end;1
 
-  file = File.open(FILE_NAME)
-  contents = ""
-  file.each { |line| contents << line }
-
   log = File.read(FILE_NAME)
   File.open(LOG_FILE_NAME, 'a') do |handle|
     handle.puts log
   end
 
-  Pony.mail(
-    :to => 'khandennis@gmail.com,khanalena@gmail.com',
-    :from => 'khandennis@gmail.com',
-    :subject => 'pokemons',
-    :body => 'See attachment',
-    :html_body => contents,
-    :attachments => { "pokemons.html" => log }
-  )
+  # file = File.open(FILE_NAME)
+  # contents = ""
+  # file.each { |line| contents << line }
+
+  # Pony.mail(
+  #   :to => 'khandennis@gmail.com,khanalena@gmail.com',
+  #   :from => 'khandennis@gmail.com',
+  #   :subject => 'pokemons',
+  #   :body => 'See attachment',
+  #   :html_body => contents,
+  #   :attachments => { "pokemons.html" => log }
+  # )
 
   puts "-"*120
 end
