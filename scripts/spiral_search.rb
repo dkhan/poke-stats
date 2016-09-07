@@ -1,7 +1,7 @@
 require 'pp'
 require 'poke-api'
 
-@location = :eliza
+@location = :work
 
 FILE_NAME = "/Users/dkhan/trash/pokemon_data_#{@location}.html".freeze
 LOG_FILE_NAME = "/Users/dkhan/trash/log_#{@location}.html".freeze
@@ -199,7 +199,7 @@ def find_poi(client, lat, lng, logged_pokemons)
 
       (wild_pokemons + nearby_pokemons).each do |pokemon|
         pokemon_id = pokemon[:pokemon_id] || pokemon[:pokemon_data][:pokemon_id]
-        next if pokemon_id.to_s.in? common
+        # next if pokemon_id.to_s.in? common
 
         path = "http://maps.google.com/?q=#{pokemon[:latitude]},#{pokemon[:longitude]}"
         disappears_at =
@@ -248,10 +248,11 @@ def find_poi(client, lat, lng, logged_pokemons)
   logged_pokemons
 end
 
-logged_pokemons = []
 
 while true do
   File.open(FILE_NAME, 'w')
+
+  logged_pokemons = []
 
   PLACES.each do |coord|
     print "\n#{coord[2]}: "
