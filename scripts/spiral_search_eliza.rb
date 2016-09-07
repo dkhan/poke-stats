@@ -35,29 +35,29 @@ require 'poke-api'
 # ].freeze
 
 # ===== WORK =====
-@home = false; @eliza = false; @work = true
-FILE_NAME = '/Users/dkhan/trash/pokemon_data_work.html'.freeze
-LOG_FILE_NAME = '/Users/dkhan/trash/pokemon_data_work_log.html'.freeze
-PLACES = [
-  [42.344369, -71.033217, "Front"], # current
-  [42.344369, -71.031318, "Middle"],
-  [42.344442, -71.029478, "Current"],
-  [42.344471, -71.027747, "Back"],
-  [42.344020, -71.024471, "Warf"],
-].freeze
-
-# ===== ELIZA =====
-# @home = false; @eliza = true; @work = false
+# @home = false; @eliza = false; @work = true
 # FILE_NAME = '/Users/dkhan/trash/pokemon_data_work.html'.freeze
 # LOG_FILE_NAME = '/Users/dkhan/trash/pokemon_data_work_log.html'.freeze
 # PLACES = [
-#   [42.556519, -70.945009, "Office"],
-#   [42.558225, -70.942810, "Cemetery"],
-#   [42.559315, -70.940342, "Park"],
-#   [42.551823, -70.941806, "Mall - Kohl's"],
-#   [42.552716, -70.938598, "Mall - Best Buy"],
-#   [42.553933, -70.940626, "Mall - Marshalls"],
+#   [42.344369, -71.033217, "Front"], # current
+#   [42.344369, -71.031318, "Middle"],
+#   [42.344442, -71.029478, "Current"],
+#   [42.344471, -71.027747, "Back"],
+#   [42.344020, -71.024471, "Warf"],
 # ].freeze
+
+# ===== ELIZA =====
+@home = false; @eliza = true; @work = false
+FILE_NAME = '/Users/dkhan/trash/pokemon_data_work.html'.freeze
+LOG_FILE_NAME = '/Users/dkhan/trash/pokemon_data_work_log.html'.freeze
+PLACES = [
+  [42.556519, -70.945009, "Office"],
+  [42.558225, -70.942810, "Cemetery"],
+  [42.559315, -70.940342, "Park"],
+  [42.551823, -70.941806, "Mall - Kohl's"],
+  [42.552716, -70.938598, "Mall - Best Buy"],
+  [42.553933, -70.940626, "Mall - Marshalls"],
+].freeze
 
 # --------------------
 
@@ -170,7 +170,7 @@ def find_poi(client, lat, lng, logged_pokemons)
           "UNKNOWN"
         end
 
-        next if disappears_at == "UNKNOWN"
+        next if @eliza && disappears_at == "UNKNOWN"
 
         poke_data = "#{pokemon_id}: #{path} disappears: #{disappears_at}"
         html_poke_data = "<a href='#{path}'>#{pokemon_id}</a> disappears: #{disappears_at}</br>\n"
