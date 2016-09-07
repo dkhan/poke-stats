@@ -1,69 +1,111 @@
 require 'pp'
 require 'poke-api'
 
-# ===== HOME =====
+@location = :eliza
 
-# @home = true; @eliza = false; @work = false
-# FILE_NAME = '/Users/dkhan/trash/pokemon_data.html'.freeze
-# LOG_FILE_NAME = '/Users/dkhan/trash/pokemon_data_log.html'.freeze
-# PLACES = [
-#   [42.671630, -71.137836, "Olde Berry Rd"],
-#   [42.673483, -71.131838, "YMCA"],
-#   [42.684305, -71.136160, "Market Basket"],
-#   [42.664660, -71.144548, "Stop & Shop"],
-#   [42.663526, -71.144554, "McDonald's"],
-#   [42.661182, -71.145568, "Whole Foods"],
-#   [42.662406, -71.146854, "Post Office"],
-#   [42.666316, -71.146095, "Washington Park Dr (Dratini)"],
-#   [42.647901, -71.132127, "Phillips Academy"],
-#   [42.667983, -71.122917, "Merrimack College"],
-#   [42.666005, -71.157582, "Theodore Ave"],
-#   [42.661735, -71.163366, "Chadwick Cir"],
-#   [42.659940, -71.154742, "High School"],
-#   [42.665046, -71.170629, "West Elementary School"],
-#   [42.660104, -71.161190, "Leah Way"],
-#   [42.655388, -71.171757, "Cutler Rd"],
-#   [42.650666, -71.176256, "Wild Rose Dr"],
-#   [42.647629, -71.183184, "IRS"],
-#   [42.641835, -71.195241, "Patricia Cir"],
-#   [42.673548, -71.143517, "Enmore St"],
-#   #[42.673362, -71.141776, "HOME"],
-# ].freeze
+FILE_NAME = "/Users/dkhan/trash/pokemon_data_#{@location}.html".freeze
+LOG_FILE_NAME = "/Users/dkhan/trash/log_#{@location}.html".freeze
+DEFAULT_STEP_SIZE = 0.001
+DEFAULT_STEP_LIMIT = 9
 
-# CITIES = [
-#   [42.661182, -71.145568, "Andover"], # Whole Foods
-# ].freeze
+@step_size = DEFAULT_STEP_SIZE
+@step_limit = DEFAULT_STEP_LIMIT
 
-# ===== WORK =====
-@home = false; @eliza = false; @work = true
-FILE_NAME = '/Users/dkhan/trash/pokemon_data_work.html'.freeze
-LOG_FILE_NAME = '/Users/dkhan/trash/pokemon_data_work_log.html'.freeze
-PLACES = [
-  [42.344369, -71.033217, "Front"], # current
-  [42.344369, -71.031318, "Middle"],
-  [42.344442, -71.029478, "Current"],
-  [42.344471, -71.027747, "Back"],
-  [42.344020, -71.024471, "Warf"],
-].freeze
+@trainers = {
+  'G0DKID' => {
+    email: 'khandennis@gmail.com',
+    phone: '7742327536'
+  },
+  'K155KA' => {
+    email: 'khanalena@gmail.com',
+    phone: '5088735603'
+  }
+}
 
-# ===== ELIZA =====
-# @home = false; @eliza = true; @work = false
-# FILE_NAME = '/Users/dkhan/trash/pokemon_data_work.html'.freeze
-# LOG_FILE_NAME = '/Users/dkhan/trash/pokemon_data_work_log.html'.freeze
-# PLACES = [
-#   [42.556519, -70.945009, "Office"],
-#   [42.558225, -70.942810, "Cemetery"],
-#   [42.559315, -70.940342, "Park"],
-#   [42.551823, -70.941806, "Mall - Kohl's"],
-#   [42.552716, -70.938598, "Mall - Best Buy"],
-#   [42.553933, -70.940626, "Mall - Marshalls"],
-# ].freeze
+@godkid_email = @trainers['G0DKID'][:email]
+@godkid_phone = @trainers['G0DKID'][:phone]
+@kisska_email = @trainers['K155KA'][:email]
+@kisska_phone = @trainers['K155KA'][:phone]
 
-# --------------------
+case @location
+when :home
+  PLACES = [
+    [42.671630, -71.137836, "Olde Berry Rd"],
+    [42.673483, -71.131838, "YMCA"],
+    [42.684305, -71.136160, "Market Basket"],
+    [42.664660, -71.144548, "Stop & Shop"],
+    [42.663526, -71.144554, "McDonald's"],
+    [42.661182, -71.145568, "Whole Foods"],
+    [42.662406, -71.146854, "Post Office"],
+    [42.666316, -71.146095, "Washington Park Dr (Dratini)"],
+    [42.647901, -71.132127, "Phillips Academy"],
+    [42.667983, -71.122917, "Merrimack College"],
+    [42.666005, -71.157582, "Theodore Ave"],
+    [42.661735, -71.163366, "Chadwick Cir"],
+    [42.659940, -71.154742, "High School"],
+    [42.665046, -71.170629, "West Elementary School"],
+    [42.660104, -71.161190, "Leah Way"],
+    [42.655388, -71.171757, "Cutler Rd"],
+    [42.650666, -71.176256, "Wild Rose Dr"],
+    [42.647629, -71.183184, "IRS"],
+    [42.641835, -71.195241, "Patricia Cir"],
+    [42.673548, -71.143517, "Enmore St"],
+    #[42.673362, -71.141776, "HOME"],
+  ].freeze
 
-@recipients = "khandennis@gmail.com, khanalena@gmail.com" if @home
-@recipients = "khandennis@gmail.com" if @home || @work
-@recipients = "khanalena@gmail.com" if @home || @eliza
+  @recipients = [@godkid_email, @kisska_email]
+
+when :work
+  PLACES = [
+    [42.344369, -71.033217, "Front"],
+    [42.344369, -71.031318, "Middle"],
+    [42.344442, -71.029478, "Current"],
+    [42.344471, -71.027747, "Back"],
+    [42.344020, -71.024471, "Warf"],
+  ].freeze
+
+  @step_size = 0.0007
+  @step_limit = 9
+
+  @recipients = [@godkid_email]
+
+when :eliza
+  PLACES = [
+    [42.556519, -70.945009, "Office"],
+    [42.558225, -70.942810, "Cemetery"],
+    [42.559315, -70.940342, "Park"],
+    [42.551823, -70.941806, "Mall - Kohl's"],
+    [42.552716, -70.938598, "Mall - Best Buy"],
+    [42.553933, -70.940626, "Mall - Marshalls"],
+  ].freeze
+
+  @step_size = 0.0007
+  @step_limit = 29
+
+  @recipients = [@godkid_email, @kisska_email]
+
+when :city
+  PLACES = [
+    [42.661182, -71.145568, "Andover"], # Whole Foods
+  ].freeze
+
+  @step_size = 0.0015
+  @step_limit = 299
+
+  @recipients = [@godkid_email]
+
+when :point
+  PLACES = [
+    [42.556519, -70.945009, "Precise search"],
+  ].freeze
+
+  @step_size = 0.0005
+  @step_limit = 49
+
+  @recipients = [@godkid_email]
+end
+
+@recipients = @recipients.join(',')
 
 Poke::API::Logging.log_level = :UNKNOWN
 
@@ -117,10 +159,7 @@ def find_poi(client, lat, lng, logged_pokemons)
   rare = %w(SNORLAX LAPRAS GYARADOS KANGASKHAN DITTO ARTICUNO ZAPDOS MOLTRES MEWTWO MEW SQUIRTLE WARTORTLE BLASTOISE PIKACHU RAICHU GEODUDE GRAVLER GOLEM PONYTA RAPIDASH DRATINI DRAGONAIR DRAGONITE CHARMANDER CHARMELEON CHARIZARD BULBASAUR IVYSAUR VENUSAUR EKANS ARBOK GROWLITHE ARCANINE MACHOP MACHOKE MACHAMP MANKEY PRIMEAPE ONYX EXEGGCUTE EXEGGUTOR CHANSEY PORYGON AERODACTYL KABUTO KABUTOPS OMANYTE OMASTAR PINSIR MAGMAR MR_MIME TANGELA KOFFING WEEZING LICKTUNG HITMONCHAN HITMONLEE CUBONE MAROWAK)
   legend = %w(SNORLAX LAPRAS KANGASKHAN DITTO ARTICUNO ZAPDOS MOLTRES MEWTWO MEW)
 
-  step_size = 0.001
-  step_limit = 9
-
-  coords = generate_spiral(lat, lng, step_size, step_limit)
+  coords = generate_spiral(lat, lng, @step_size, @step_limit)
   print_google_maps_path(coords)
 
   pokemon_data = {}
@@ -170,7 +209,7 @@ def find_poi(client, lat, lng, logged_pokemons)
           "UNKNOWN"
         end
 
-        next if disappears_at == "UNKNOWN"
+        next if disappears_at == "UNKNOWN" # comment if want to see nearby
 
         poke_data = "#{pokemon_id}: #{path} disappears: #{disappears_at}"
         html_poke_data = "<a href='#{path}'>#{pokemon_id}</a> disappears: #{disappears_at}</br>\n"
@@ -191,8 +230,8 @@ def find_poi(client, lat, lng, logged_pokemons)
 
             if pokemon_id.to_s.in? rare # switch to legend at night time
               sms_fu = SMSFu::Client.configure(:delivery => :pony, :pony_config => { :via => :sendmail })
-              sms_fu.deliver("7742327536","at&t",poke_data)
-              sms_fu.deliver("5088735603","at&t",poke_data) if @home || @eliza
+              sms_fu.deliver("7742327536", "at&t", poke_data)
+              sms_fu.deliver("5088735603", "at&t", poke_data) if @location.in? [:eliza, :home] # TODO: make it nice through recipients
             end
 
           end
