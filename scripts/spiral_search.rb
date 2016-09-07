@@ -248,11 +248,10 @@ def find_poi(client, lat, lng, logged_pokemons)
   logged_pokemons
 end
 
+logged_pokemons = []
 
 while true do
   File.open(FILE_NAME, 'w')
-
-  logged_pokemons = []
 
   PLACES.each do |coord|
     print "\n#{coord[2]}: "
