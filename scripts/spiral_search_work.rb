@@ -125,7 +125,7 @@ def find_poi(client, lat, lng, logged_pokemons)
 
           if pokemon_id.to_s.in? rare
             Pony.mail(
-              :to => 'khandennis@gmail.com,khanalena@gmail.com',
+              :to => 'khandennis@gmail.com',
               :from => 'khandennis@gmail.com',
               :subject => "#{pokemon_id}!!!",
               :body => poke_data,
