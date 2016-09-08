@@ -1,7 +1,7 @@
 require 'pp'
 require 'poke-api'
 
-@location = :home
+@location = :work
 
 FILE_NAME = "/Users/dkhan/trash/pokemon_data_#{@location}.html".freeze
 LOG_FILE_NAME = "/Users/dkhan/trash/log_#{@location}.html".freeze
@@ -52,6 +52,9 @@ when :home
     [42.673548, -71.143517, "Enmore St"],
     #[42.673362, -71.141776, "HOME"],
   ].freeze
+
+  @step_size = 0.001
+  @step_limit = 9
 
   @recipients = [@godkid_email, @kisska_email]
 
@@ -228,7 +231,7 @@ def find_poi(client, lat, lng, logged_pokemons)
               :html_body => html_poke_data
             )
 
-            if pokemon_id.to_s.in? rare # switch to legend at night time
+            if pokemon_id.to_s.in? rare # switch to legend at night time, rare otherwise
               sms_fu = SMSFu::Client.configure(:delivery => :pony, :pony_config => { :via => :sendmail })
               sms_fu.deliver("7742327536", "at&t", poke_data)
               sms_fu.deliver("5088735603", "at&t", poke_data) if @location.in? [:eliza, :home] # TODO: make it nice through recipients
