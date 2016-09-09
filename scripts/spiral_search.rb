@@ -1,7 +1,7 @@
 require 'pp'
 require 'poke-api'
 
-@location = :work
+@location = :point
 
 FILE_NAME = "/Users/dkhan/trash/pokemon_data_#{@location}.html".freeze
 LOG_FILE_NAME = "/Users/dkhan/trash/log_#{@location}.html".freeze
@@ -55,7 +55,7 @@ when :home
   ].freeze
 
   @step_size = 0.001
-  @step_limit = 9
+  @step_limit = 29
 
   @recipients = [@godkid_email, @kisska_email]
 # http://maps.google.com/?q=42.34475395111901,-71.02939407921332
@@ -121,8 +121,8 @@ when :point
     [42.34481751970852,-71.02976552686681, "Precise search"],
   ].freeze
 
-  @step_size = 0.0005
-  @step_limit = 49
+  @step_size = 0.0001
+  @step_limit = 99
 
   @recipients = [@godkid_email]
 end
@@ -257,6 +257,7 @@ def find_poi(client, lat, lng, logged_pokemons)
               sms_fu.deliver("5088735603", "at&t", poke_data) if @location.in? [:eliza, :home] # TODO: make it nice through recipients
             end
 
+            notify_slack(html_poke_data)
           end
           logged_pokemons << poke_data
         end
@@ -269,6 +270,17 @@ def find_poi(client, lat, lng, logged_pokemons)
   end
 
   logged_pokemons
+end
+
+def notify_slack(text, image = nil)
+  payload = {
+    channel: '#general',
+    username: 'poke-notifier',
+    text: text,
+    icon_emoji: ":ghost:"
+  }.to_json
+  cmd = "curl -X POST --data-urlencode 'payload=#{payload}' https://hooks.slack.com/services/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"
+  system(cmd)
 end
 
 logged_pokemons = []
