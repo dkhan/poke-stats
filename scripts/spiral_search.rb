@@ -10,6 +10,7 @@ DEFAULT_STEP_LIMIT = 9
 
 @step_size = DEFAULT_STEP_SIZE
 @step_limit = DEFAULT_STEP_LIMIT
+@skip_path_lookup = true
 
 @trainers = {
   'G0DKID' => {
@@ -69,7 +70,7 @@ when :work
     #[42.34475395111901,-71.02939407921332, "Here"],
     [42.34334376219247,-71.02679393632243, "Police"],
     [42.3442827507186,-71.02447236640192, "Trucks"],
-    [42.34450006208781,-71.02530813306883, "Kamikaze"],
+    #[42.34450006208781,-71.02530813306883, "Kamikaze"],
     [42.34329627280826,-71.02521527018891, "Get out"],
     # DRATINI
     #[42.34355582914136,-71.02716538630472, "Police (Dratini)"],
@@ -79,6 +80,7 @@ when :work
     [42.34449834627182,-71.03440859443437 , "Parking"],
     [42.344520292868566,-71.03106559103237 , "Mid-"],
     [42.34467919590425,-71.03199420579584 , "Mid-left"],
+    [42.34434495616482,-71.03264423489141 , "Mid-left+"],
     #[42.344812301982785,-71.02930121724795 , "Here"],
     #[42.34476984339617,-71.02948694115791 , "Here-"],
 
@@ -116,7 +118,7 @@ when :city
 
 when :point
   PLACES = [
-    [42.556519, -70.945009, "Precise search"],
+    [42.34481751970852,-71.02976552686681, "Precise search"],
   ].freeze
 
   @step_size = 0.0005
@@ -162,7 +164,8 @@ def generate_spiral(starting_lat, starting_lng, step_size, step_limit)
   coords
 end
 
-def print_google_maps_path(coords)
+def print_google_maps_path(coords, skip_path_lookup = false)
+  raise if skip_path_lookup
   url_string = 'http://maps.googleapis.com/maps/api/staticmap?size=400x400&path='
   coords.each { |c| url_string += "#{c[:lat]},#{c[:lng]}|" }
 
@@ -180,7 +183,7 @@ def find_poi(client, lat, lng, logged_pokemons)
   legend = %w(SNORLAX LAPRAS KANGASKHAN DITTO ARTICUNO ZAPDOS MOLTRES MEWTWO MEW)
 
   coords = generate_spiral(lat, lng, @step_size, @step_limit)
-  print_google_maps_path(coords)
+  print_google_maps_path(coords, @skip_path_lookup)
 
   pokemon_data = {}
 
