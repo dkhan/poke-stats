@@ -2,7 +2,7 @@ CSV_FILENAME = "/Users/dkhan/trash/godkid_pokemons.csv".freeze
 
 pokemons = []
 resp.response[:GET_INVENTORY][:inventory_delta][:inventory_items].each do |i|
-  unless i[:inventory_item_data][:pokemon_data].blank?
+  unless i[:inventory_item_data][:pokemon_data].blank? || i[:inventory_item_data][:pokemon_data][:is_egg]
     pokemons << i[:inventory_item_data][:pokemon_data]
   end
 end
