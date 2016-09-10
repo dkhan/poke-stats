@@ -1,7 +1,7 @@
 require 'pp'
 require 'poke-api'
 
-@location = :point
+@location = :home
 
 FILE_NAME = "/Users/dkhan/trash/pokemon_data_#{@location}.html".freeze
 LOG_FILE_NAME = "/Users/dkhan/trash/log_#{@location}.html".freeze
@@ -11,6 +11,9 @@ DEFAULT_STEP_LIMIT = 9
 @step_size = DEFAULT_STEP_SIZE
 @step_limit = DEFAULT_STEP_LIMIT
 @skip_path_lookup = true
+
+@godkid_slack_url = "https://hooks.slack.com/services/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"
+@autodesk_slack_url = "https://hooks.slack.com/services/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"
 
 @trainers = {
   'G0DKID' => {
@@ -86,8 +89,8 @@ when :work
 
   ].freeze
 
-  @step_size = 0.0005
-  @step_limit = 1
+  @step_size = 0.001
+  @step_limit = 5
 
   @recipients = [@godkid_email]
 
@@ -113,6 +116,22 @@ when :city
 
   @step_size = 0.0015
   @step_limit = 299
+
+  @recipients = [@godkid_email]
+
+when :castle
+  PLACES = [
+    [42.338598, -71.014065, "Parking"],
+    [42.338812, -71.010429, "Fishing Pier"],
+    [42.336751, -71.010139, "Lures"],
+    [42.335097, -71.012290, "Lapras"],
+    [42.337735, -71.012512, "Playground"],
+    [42.330647, -71.015387, "Head Island"],
+
+  ].freeze
+
+  @step_size = 0.001
+  @step_limit = 9
 
   @recipients = [@godkid_email]
 
@@ -236,6 +255,7 @@ def find_poi(client, lat, lng, logged_pokemons)
 
         poke_data = "#{pokemon_id}: #{path} disappears: #{disappears_at}"
         html_poke_data = "<a href='#{path}'>#{pokemon_id}</a> disappears: #{disappears_at}</br>\n"
+        slack_poke_data = "<#{path}|#{pokemon_id}> disappears @ #{disappears_at}"
 
         # Don't show the same pokemon again
         if pokemon_data[pokemon[:encounter_id]].blank? && !logged_pokemons.include?(poke_data)
@@ -246,7 +266,7 @@ def find_poi(client, lat, lng, logged_pokemons)
             Pony.mail(
               :to => @recipients,
               :from => 'khandennis@gmail.com',
-              :subject => "#{pokemon_id}!!!",
+              :subject => "#{pokemon_id} @ #{@location}!!!",
               :body => poke_data,
               :html_body => html_poke_data
             )
@@ -257,7 +277,8 @@ def find_poi(client, lat, lng, logged_pokemons)
               sms_fu.deliver("5088735603", "at&t", poke_data) if @location.in? [:eliza, :home] # TODO: make it nice through recipients
             end
 
-            notify_slack(html_poke_data)
+            notify_slack(@godkid_slack_url, @location, slack_poke_data)
+            notify_slack(@autodesk_slack_url, "boston-pokemongo", slack_poke_data) if @location == :work
           end
           logged_pokemons << poke_data
         end
@@ -272,14 +293,14 @@ def find_poi(client, lat, lng, logged_pokemons)
   logged_pokemons
 end
 
-def notify_slack(text, image = nil)
+def notify_slack(url, channel, text)
   payload = {
-    channel: '#general',
+    channel: "#{channel}",
     username: 'poke-notifier',
     text: text,
     icon_emoji: ":ghost:"
   }.to_json
-  cmd = "curl -X POST --data-urlencode 'payload=#{payload}' https://hooks.slack.com/services/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"
+  cmd = "curl -X POST --data-urlencode 'payload=#{payload}' #{url}"
   system(cmd)
 end
 
@@ -323,7 +344,7 @@ while true do
   Pony.mail(
     :to => @recipients,
     :from => 'khandennis@gmail.com',
-    :subject => 'pokemons',
+    :subject => "pokemons @ #{@location}",
     :body => 'See attachment',
     :html_body => contents,
     :attachments => { "pokemons.html" => log }
