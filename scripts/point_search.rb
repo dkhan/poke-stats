@@ -1,7 +1,7 @@
 require 'pp'
 require 'poke-api'
 
-@location = :point
+@location = :home
 
 FILE_NAME = "/Users/dkhan/trash/pokemon_data_#{@location}.html".freeze
 LOG_FILE_NAME = "/Users/dkhan/trash/log_#{@location}.html".freeze
@@ -66,7 +66,6 @@ when :home
     [42.662556, -71.146313, "Post Office - E"], # GROWLITHE
     [42.66301706074073,-71.14684756234064, "Post Office - N"], # DRATINI
     [42.656210356387355,-71.13895650410521, "Park - NW"], # GROWLITHE
-    [42.65652669032813,-71.13951352512007, "Orange Leaf"], # LAPRAS
     [42.669708358324755,-71.14842575516631, "Main St/Park"], # DRAGONAIR
     [42.66753654811314,-71.14564070476675, "Washington Park Dr - N"], # DRAGONAIR
     [42.666429197838504,-71.14564070476675, "Washington Park Dr"], # SQUIRTLE
@@ -156,11 +155,11 @@ when :castle
 
 when :point
   PLACES = [
-    [42.627327, -71.159424, "200 Andover St"],
+    [42.610886, -71.353964, "Precise search"],
   ].freeze
 
-  @step_size = 0.0015
-  @step_limit = 29
+  @step_size = 0.001
+  @step_limit = 99
 
   @recipients = [@godkid_email]
 end
@@ -220,14 +219,19 @@ def find_poi(client, lat, lng, logged_pokemons)
   rare = %w(SNORLAX LAPRAS GYARADOS KANGASKHAN DITTO ARTICUNO ZAPDOS MOLTRES MEWTWO MEW SQUIRTLE WARTORTLE BLASTOISE PIKACHU RAICHU GEODUDE GRAVLER GOLEM PONYTA RAPIDASH DRATINI DRAGONAIR DRAGONITE CHARMANDER CHARMELEON CHARIZARD BULBASAUR IVYSAUR VENUSAUR EKANS ARBOK GROWLITHE ARCANINE MACHOP MACHOKE MACHAMP MANKEY PRIMEAPE ONYX EXEGGCUTE EXEGGUTOR CHANSEY PORYGON AERODACTYL KABUTO KABUTOPS OMANYTE OMASTAR PINSIR MAGMAR MR_MIME TANGELA KOFFING WEEZING LICKTUNG HITMONCHAN HITMONLEE CUBONE MAROWAK SCYTHER)
   legend = %w(SNORLAX LAPRAS KANGASKHAN DITTO ARTICUNO ZAPDOS MOLTRES MEWTWO MEW)
 
-  coords = generate_spiral(lat, lng, @step_size, @step_limit)
-  print_google_maps_path(coords, @skip_path_lookup)
-
   pokemon_data = {}
 
-  coords.each do |coord|
-    lat = coord[:lat]
-    lng = coord[:lng]
+  PLACES.each do |coord|
+    lat = coord[0]
+    lng = coord[1]
+    place = coord[2]
+
+
+
+
+
+
+
     client.store_lat_lng(lat, lng)
 
     cell_ids = Poke::API::Helpers.get_cells(lat, lng)
@@ -240,7 +244,6 @@ def find_poi(client, lat, lng, logged_pokemons)
     )
 
     resp = client.call
-    # puts "\nSearching at lat: #{lat} lng: #{lng}"
 
     if resp.response[:GET_MAP_OBJECTS] && resp.response[:GET_MAP_OBJECTS][:map_cells]
       wild_pokemons = resp.response[:GET_MAP_OBJECTS][:map_cells].map { |x| x[:wild_pokemons] }.flatten
@@ -292,8 +295,8 @@ def find_poi(client, lat, lng, logged_pokemons)
 
             if pokemon_id.to_s.in? rare # switch to legend at night time, rare otherwise
               sms_fu = SMSFu::Client.configure(:delivery => :pony, :pony_config => { :via => :sendmail })
-              sms_fu.deliver("7742327536", "at&t", poke_data) unless @location.in? [:eliza]
-              sms_fu.deliver("5088735603", "at&t", poke_data) if @location.in? [:eliza, :home, :point] # TODO: make it nice through recipients
+              sms_fu.deliver("7742327536", "at&t", poke_data) if @location.in? [:home]
+              sms_fu.deliver("5088735603", "at&t", poke_data) if @location.in? [:eliza, :home] # TODO: make it nice through recipients
             end
 
             notify_slack(@godkid_slack_url, @location, slack_poke_data)
@@ -323,52 +326,57 @@ def notify_slack(url, channel, text)
   system(cmd)
 end
 
-logged_pokemons = []
+def infinite_loop
+  logged_pokemons = []
 
-while true do
-  File.open(FILE_NAME, 'w')
+  client = Poke::API::Client.new
+  client.login('velasystems.owner@gmail.com', '4321Vela', 'google')
+  client.activate_signature('/Users/dkhan/Git/poke-stats/files/encrypt.so')
 
-  PLACES.each do |coord|
-    print "\n#{coord[2]}: "
-    File.open(FILE_NAME, 'a') { |f| f.write "\n</br>#{coord[2]}: " }
+  while true do
+    File.open(FILE_NAME, 'w')
 
-    client = Poke::API::Client.new
+    PLACES.each do |coord|
+      print "\n#{coord[2]}: "
+      File.open(FILE_NAME, 'a') { |f| f.write "\n</br>#{coord[2]}: " }
 
-    # Set our location
-    # client.store_location('Andover, MA')
-    lat, lng = coord[0], coord[1]
-    client.store_lat_lng(lat, lng)
 
-    begin
-      client.login('velasystems.owner@gmail.com', '4321Vela', 'google')
+      # Set our location
+      # client.store_location('Andover, MA')
+      lat, lng = coord[0], coord[1]
+      client.store_lat_lng(lat, lng)
 
-      client.activate_signature('/Users/dkhan/Git/poke-stats/files/encrypt.so')
+      begin
 
-      logged_pokemons = find_poi(client, client.lat, client.lng, logged_pokemons)
-    rescue
-      puts "Probably Google login problem"
-      File.open(FILE_NAME, 'a') { |f| f.write "Google login problem</br>\n" }
+
+        logged_pokemons = find_poi(client, client.lat, client.lng, logged_pokemons)
+      rescue
+        puts "Probably Google login problem"
+        File.open(FILE_NAME, 'a') { |f| f.write "Google login problem</br>\n" }
+      end
+    end;1
+
+    log = File.read(FILE_NAME)
+    File.open(LOG_FILE_NAME, 'a') do |handle|
+      handle.puts log
     end
-  end;1
 
-  log = File.read(FILE_NAME)
-  File.open(LOG_FILE_NAME, 'a') do |handle|
-    handle.puts log
+    # file = File.open(FILE_NAME)
+    # contents = ""
+    # file.each { |line| contents << line }
+
+    # Pony.mail(
+    #   :to => @recipients,
+    #   :from => 'khandennis@gmail.com',
+    #   :subject => "pokemons @ #{@location}",
+    #   :body => 'See attachment',
+    #   :html_body => contents,
+    #   :attachments => { "pokemons.html" => log }
+    # )
+
+    puts "-"*120
+    # sleep 300
   end
-
-  # file = File.open(FILE_NAME)
-  # contents = ""
-  # file.each { |line| contents << line }
-
-  # Pony.mail(
-  #   :to => @recipients,
-  #   :from => 'khandennis@gmail.com',
-  #   :subject => "pokemons @ #{@location}",
-  #   :body => 'See attachment',
-  #   :html_body => contents,
-  #   :attachments => { "pokemons.html" => log }
-  # )
-
-  puts "-"*120
-  # sleep 300
 end
+
+infinite_loop
