@@ -1,7 +1,7 @@
 require 'pp'
 require 'poke-api'
 
-@location = :work
+@location = :eliza
 
 FILE_NAME = "/Users/dkhan/trash/pokemon_data_#{@location}.html".freeze
 LOG_FILE_NAME = "/Users/dkhan/trash/log_#{@location}.html".freeze
@@ -113,7 +113,7 @@ when :work
 
   @recipients = [@godkid_email]
 
-when :work
+when :eliza
   PLACES = [
     [42.556519, -70.945009, "Office"],
     [42.558225, -70.942810, "Cemetery"],
