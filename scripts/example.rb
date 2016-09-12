@@ -16,8 +16,8 @@ client.store_lat_lng(lat, lng)
 
 # Use Google auth with 'username@gmail.com', 'password', 'google'
 # Optionally set your Google Refresh token using client.refresh_token = 'my-token'
-#client.login('velasystems.owner@gmail.com', '4321Vela', 'google')
-client.login('khandennis@gmail.com', 'Jesus0%Lord', 'google')
+client.login(ENV['PKGO_EMAIL'], ENV['PKGO_PASSWORD'], 'google')
+
 
 # Activate the encryption method to generate a signature
 # Where path is the path to your encrypt .so/.dll

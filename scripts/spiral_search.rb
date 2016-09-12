@@ -1,7 +1,7 @@
 require 'pp'
 require 'poke-api'
 
-@location = :point
+@location = :work
 
 FILE_NAME = "/Users/dkhan/trash/pokemon_data_#{@location}.html".freeze
 LOG_FILE_NAME = "/Users/dkhan/trash/log_#{@location}.html".freeze
@@ -12,17 +12,17 @@ DEFAULT_STEP_LIMIT = 9
 @step_limit = DEFAULT_STEP_LIMIT
 @skip_path_lookup = true
 
-@godkid_slack_url = "https://hooks.slack.com/services/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"
-@autodesk_slack_url = "https://hooks.slack.com/services/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"
+@godkid_slack_url = ENV['GODKID_SLACK_URL']
+@autodesk_slack_url = ENV['AUTODESK_SLACK_URL']
 
 @trainers = {
   'G0DKID' => {
-    email: 'khandennis@gmail.com',
-    phone: '7742327536'
+    email: ENV['GODKID_EMAIL'],
+    phone: ENV['GODKID_PHONE']
   },
   'K155KA' => {
-    email: 'khanalena@gmail.com',
-    phone: '5088735603'
+    email: ENV['KISSKA_EMAIL'],
+    phone: ENV['KISSKA_PHONE']
   }
 }
 
@@ -113,7 +113,7 @@ when :work
 
   @recipients = [@godkid_email]
 
-when :eliza
+when :work
   PLACES = [
     [42.556519, -70.945009, "Office"],
     [42.558225, -70.942810, "Cemetery"],
@@ -292,8 +292,8 @@ def find_poi(client, lat, lng, logged_pokemons)
 
             if pokemon_id.to_s.in? rare # switch to legend at night time, rare otherwise
               sms_fu = SMSFu::Client.configure(:delivery => :pony, :pony_config => { :via => :sendmail })
-              sms_fu.deliver("7742327536", "at&t", poke_data) unless @location.in? [:eliza]
-              sms_fu.deliver("5088735603", "at&t", poke_data) if @location.in? [:eliza, :home, :point] # TODO: make it nice through recipients
+              sms_fu.deliver(@godkid_phone, "at&t", poke_data) unless @location.in? [:eliza]
+              sms_fu.deliver(@kisska_phone, "at&t", poke_data) if @location.in? [:eliza, :home, :point] # TODO: make it nice through recipients
             end
 
             notify_slack(@godkid_slack_url, @location, slack_poke_data)
@@ -339,16 +339,16 @@ while true do
     lat, lng = coord[0], coord[1]
     client.store_lat_lng(lat, lng)
 
-    begin
-      client.login('velasystems.owner@gmail.com', '4321Vela', 'google')
+    #begin
+      client.login(ENV['PKGO_EMAIL'], ENV['PKGO_PASSWORD'], 'google')
 
       client.activate_signature('/Users/dkhan/Git/poke-stats/files/encrypt.so')
 
       logged_pokemons = find_poi(client, client.lat, client.lng, logged_pokemons)
-    rescue
-      puts "Probably Google login problem"
-      File.open(FILE_NAME, 'a') { |f| f.write "Google login problem</br>\n" }
-    end
+    # rescue
+    #   puts "Probably Google login problem"
+    #   File.open(FILE_NAME, 'a') { |f| f.write "Google login problem</br>\n" }
+    # end
   end;1
 
   log = File.read(FILE_NAME)

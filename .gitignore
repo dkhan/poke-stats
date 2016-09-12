@@ -24,3 +24,5 @@
 poke-stats.sublime-project
 poke-stats.sublime-workspace
 pokemon_data.html
+
+.env

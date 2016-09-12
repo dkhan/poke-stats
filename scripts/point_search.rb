@@ -12,17 +12,17 @@ DEFAULT_STEP_LIMIT = 9
 @step_limit = DEFAULT_STEP_LIMIT
 @skip_path_lookup = true
 
-@godkid_slack_url = "https://hooks.slack.com/services/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"
-@autodesk_slack_url = "https://hooks.slack.com/services/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"
+@godkid_slack_url = ENV['GODKID_SLACK_URL']
+@autodesk_slack_url = ENV['AUTODESK_SLACK_URL']
 
 @trainers = {
   'G0DKID' => {
-    email: 'khandennis@gmail.com',
-    phone: '7742327536'
+    email: ENV['GODKID_EMAIL'],
+    phone: ENV['GODKID_PHONE']
   },
   'K155KA' => {
-    email: 'khanalena@gmail.com',
-    phone: '5088735603'
+    email: ENV['KISSKA_EMAIL'],
+    phone: ENV['KISSKA_PHONE']
   }
 }
 
@@ -225,12 +225,6 @@ def find_poi(client, lat, lng, logged_pokemons)
     lat = coord[0]
     lng = coord[1]
     place = coord[2]
-
-
-
-
-
-
 
     client.store_lat_lng(lat, lng)
 
