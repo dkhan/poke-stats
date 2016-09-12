@@ -282,13 +282,13 @@ def find_poi(client, lat, lng, logged_pokemons)
           File.open(FILE_NAME, 'a') { |f| f.write "#{html_poke_data}\n" }
 
           if pokemon_id.to_s.in? rare
-            # Pony.mail(
-            #   :to => @recipients,
-            #   :from => 'khandennis@gmail.com',
-            #   :subject => "#{pokemon_id} @ #{@location}!!!",
-            #   :body => poke_data,
-            #   :html_body => html_poke_data
-            # )
+            Pony.mail(
+              :to => @recipients,
+              :from => 'khandennis@gmail.com',
+              :subject => "#Pokemon: {pokemon_id} @ #{@location}",
+              :body => poke_data,
+              :html_body => html_poke_data
+            )
 
             if pokemon_id.to_s.in? rare # switch to legend at night time, rare otherwise
               sms_fu = SMSFu::Client.configure(:delivery => :pony, :pony_config => { :via => :sendmail })
@@ -356,19 +356,18 @@ while true do
     handle.puts log
   end
 
-  # file = File.open(FILE_NAME)
-  # contents = ""
-  # file.each { |line| contents << line }
+  file = File.open(FILE_NAME)
+  contents = ""
+  file.each { |line| contents << line }
 
-  # Pony.mail(
-  #   :to => @recipients,
-  #   :from => 'khandennis@gmail.com',
-  #   :subject => "pokemons @ #{@location}",
-  #   :body => 'See attachment',
-  #   :html_body => contents,
-  #   :attachments => { "pokemons.html" => log }
-  # )
+  Pony.mail(
+    :to => @recipients,
+    :from => 'khandennis@gmail.com',
+    :subject => "pokemons @ #{@location}",
+    :body => 'See attachment',
+    :html_body => contents,
+    :attachments => { "pokemons.html" => log }
+  )
 
   puts "-"*120
-  # sleep 300
 end

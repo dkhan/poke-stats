@@ -4,8 +4,7 @@ require_relative 'application'
 # Initialize the Rails application.
 Rails.application.initialize!
 
-Pony.mail({
-  :to => ENV['GODKID_EMAIL'],
+Pony.options = {
   :via => :smtp,
   :via_options => {
     :address              => 'smtp.gmail.com',
@@ -16,6 +15,6 @@ Pony.mail({
     :authentication       => :plain, # :plain, :login, :cram_md5, no auth by default
     :domain               => "localhost.localdomain" # the HELO domain provided by the client to the server
   }
-})
+}
 
 RAILS_ROOT = "/Users/dkhan/Git/poke-stats"
