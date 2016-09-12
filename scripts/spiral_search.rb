@@ -1,7 +1,7 @@
 require 'pp'
 require 'poke-api'
 
-@location = :eliza
+@location = :point
 
 FILE_NAME = "/Users/dkhan/trash/pokemon_data_#{@location}.html".freeze
 LOG_FILE_NAME = "/Users/dkhan/trash/log_#{@location}.html".freeze
@@ -156,7 +156,7 @@ when :castle
 
 when :point
   PLACES = [
-    [42.627327, -71.159424, "200 Andover St"],
+    [42.3435000922,-71.0274904048, "200 Andover St"],
   ].freeze
 
   @step_size = 0.0015
@@ -285,7 +285,7 @@ def find_poi(client, lat, lng, logged_pokemons)
             Pony.mail(
               :to => @recipients,
               :from => 'khandennis@gmail.com',
-              :subject => "#Pokemon: {pokemon_id} @ #{@location}",
+              :subject => "Pokemon: #{pokemon_id} @ #{@location}",
               :body => poke_data,
               :html_body => html_poke_data
             )
@@ -339,16 +339,16 @@ while true do
     lat, lng = coord[0], coord[1]
     client.store_lat_lng(lat, lng)
 
-    #begin
+    begin
       client.login(ENV['PKGO_EMAIL'], ENV['PKGO_PASSWORD'], 'google')
 
       client.activate_signature('/Users/dkhan/Git/poke-stats/files/encrypt.so')
 
       logged_pokemons = find_poi(client, client.lat, client.lng, logged_pokemons)
-    # rescue
-    #   puts "Probably Google login problem"
-    #   File.open(FILE_NAME, 'a') { |f| f.write "Google login problem</br>\n" }
-    # end
+    rescue
+      puts "Probably Google login problem"
+      File.open(FILE_NAME, 'a') { |f| f.write "Google login problem</br>\n" }
+    end
   end;1
 
   log = File.read(FILE_NAME)
