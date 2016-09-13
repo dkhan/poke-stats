@@ -1,7 +1,9 @@
 # finder = PokemonFinder.new(location: :work); finder.loop
+# finder = PokemonFinder.new(location: :work, spiral: true, step_size: 0.001, step_limit: 19, skip_path_lookup: false); finder.loop
 # finder = PokemonFinder.new(location: :point, spiral: true, step_size: 0.001, step_limit: 29, skip_path_lookup: false); finder.loop
 # finder = PokemonFinder.new(location: :eliza, spiral: true, step_size: 0.001, step_limit: 29, skip_path_lookup: false); finder.loop
 # finder = PokemonFinder.new(location: :city, spiral: true, step_size: 0.0015, step_limit: 499, skip_path_lookup: true); finder.loop
+# finder = PokemonFinder.new(location: :budapest, spiral: true, step_size: 0.0015, step_limit: 49, skip_path_lookup: false); finder.loop
 require 'poke-api'
 
 class PokemonFinder
@@ -23,6 +25,7 @@ class PokemonFinder
     when :city then PlacesHelper::CITY
     when :castle then PlacesHelper::CASTLE
     when :point then PlacesHelper::POINT
+    when :budapest then PlacesHelper::BUDAPEST
     end
   end
 
@@ -93,7 +96,7 @@ class PokemonFinder
     places.each do |place|
       coords = generate_spiral(place[0], place[1], @step_size, @step_limit)
 
-      puts "\n#{place[2]} (started @ #{Time.now.strftime("%m/%d/%Y %I:%M%p")}): "
+      print "\n#{place[2]} (started @ #{Time.now.strftime("%m/%d/%Y %I:%M%p")}): "
       print_google_maps_path(coords, @skip_path_lookup)
 
       coords.each do |coord|
@@ -146,7 +149,7 @@ class PokemonFinder
             # switch to LEGEND at night time, RARE otherwise
             if pokemon_id.to_s.in? PokemonData::RARE
               sms_fu = SMSFu::Client.configure(delivery: :pony, pony_config: Pony.options)
-              sms_fu.deliver(ENV['GODKID_PHONE'], "at&t", poke_data) unless @location.in? [:eliza]
+              sms_fu.deliver(ENV['GODKID_PHONE'], "at&t", poke_data) unless @location.in? [:eliza, :budapest]
               sms_fu.deliver(ENV['KISSKA_PHONE'], "at&t", poke_data) if @location.in? [:eliza, :home]
             end
 

@@ -94,6 +94,10 @@ module PlacesHelper
 
   ].freeze
 
+  BUDAPEST = [
+    [47.508268, 19.059583, "Budapest, Hungary"],
+  ].freeze
+
   POINT = [
     [42.3440086574,-71.0304619903, "point search"],
   ].freeze
