@@ -1,7 +1,7 @@
 require 'pp'
 require 'poke-api'
 
-@location = :point
+@location = :home
 
 FILE_NAME = "/Users/dkhan/trash/pokemon_data_#{@location}.html".freeze
 LOG_FILE_NAME = "/Users/dkhan/trash/log_#{@location}.html".freeze
@@ -270,7 +270,7 @@ def find_poi(client, lat, lng, logged_pokemons)
           "UNKNOWN"
         end
 
-        next if disappears_at == "UNKNOWN" # comment if want to see nearby
+        # next if disappears_at == "UNKNOWN" # comment if want to see nearby
 
         poke_data = "#{pokemon_id}: #{path} disappears: #{disappears_at}"
         html_poke_data = "<a href='#{path}'>#{pokemon_id}</a> disappears: #{disappears_at}</br>\n"
@@ -282,18 +282,18 @@ def find_poi(client, lat, lng, logged_pokemons)
           File.open(FILE_NAME, 'a') { |f| f.write "#{html_poke_data}\n" }
 
           if pokemon_id.to_s.in? rare
-            Pony.mail(
-              :to => @recipients,
-              :from => 'khandennis@gmail.com',
-              :subject => "Pokemon: #{pokemon_id} @ #{@location}",
-              :body => poke_data,
-              :html_body => html_poke_data
-            )
+            # Pony.mail(
+            #   :to => @recipients,
+            #   :from => 'khandennis@gmail.com',
+            #   :subject => "Pokemon: #{pokemon_id} @ #{@location}",
+            #   :body => poke_data,
+            #   :html_body => html_poke_data
+            # )
 
             if pokemon_id.to_s.in? rare # switch to legend at night time, rare otherwise
-              sms_fu = SMSFu::Client.configure(:delivery => :pony, :pony_config => { :via => :sendmail })
+              sms_fu = SMSFu::Client.configure(delivery: :pony, pony_config: Pony.options)
               sms_fu.deliver(@godkid_phone, "at&t", poke_data) unless @location.in? [:eliza]
-              sms_fu.deliver(@kisska_phone, "at&t", poke_data) if @location.in? [:eliza, :home, :point] # TODO: make it nice through recipients
+              sms_fu.deliver(@kisska_phone, "at&t", poke_data) if @location.in? [:eliza, :home] # TODO: make it nice through recipients
             end
 
             notify_slack(@godkid_slack_url, @location, slack_poke_data)
@@ -351,23 +351,23 @@ while true do
     end
   end;1
 
-  log = File.read(FILE_NAME)
-  File.open(LOG_FILE_NAME, 'a') do |handle|
-    handle.puts log
-  end
+  # log = File.read(FILE_NAME)
+  # File.open(LOG_FILE_NAME, 'a') do |handle|
+  #   handle.puts log
+  # end
 
-  file = File.open(FILE_NAME)
-  contents = ""
-  file.each { |line| contents << line }
+  # file = File.open(FILE_NAME)
+  # contents = ""
+  # file.each { |line| contents << line }
 
-  Pony.mail(
-    :to => @recipients,
-    :from => 'khandennis@gmail.com',
-    :subject => "pokemons @ #{@location}",
-    :body => 'See attachment',
-    :html_body => contents,
-    :attachments => { "pokemons.html" => log }
-  )
+  # Pony.mail(
+  #   :to => @recipients,
+  #   :from => 'khandennis@gmail.com',
+  #   :subject => "pokemons @ #{@location}",
+  #   :body => 'See attachment',
+  #   :html_body => contents,
+  #   :attachments => { "pokemons.html" => log }
+  # )
 
   puts "-"*120
 end

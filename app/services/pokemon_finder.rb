@@ -1,5 +1,7 @@
-# finder = PokemonFinder.new(location: :home); finder.loop
-# finder = PokemonFinder.new(location: :home, spiral: true, step_size: 0.0005, step_limit: 29, skip_path_lookup: false); finder.loop
+# finder = PokemonFinder.new(location: :work); finder.loop
+# finder = PokemonFinder.new(location: :point, spiral: true, step_size: 0.001, step_limit: 29, skip_path_lookup: false); finder.loop
+# finder = PokemonFinder.new(location: :eliza, spiral: true, step_size: 0.001, step_limit: 29, skip_path_lookup: false); finder.loop
+# finder = PokemonFinder.new(location: :city, spiral: true, step_size: 0.0015, step_limit: 499, skip_path_lookup: true); finder.loop
 require 'poke-api'
 
 class PokemonFinder
@@ -77,7 +79,7 @@ class PokemonFinder
       @lng = place[1]
       @place = place[2]
 
-      puts "\n#{@place}: "
+      puts "\n#{@place} (started @ #{Time.now.strftime("%m/%d/%Y %I:%M%p")}): "
 
       begin
         find
@@ -91,7 +93,7 @@ class PokemonFinder
     places.each do |place|
       coords = generate_spiral(place[0], place[1], @step_size, @step_limit)
 
-      print "\n#{place[2]}: "
+      puts "\n#{place[2]} (started @ #{Time.now.strftime("%m/%d/%Y %I:%M%p")}): "
       print_google_maps_path(coords, @skip_path_lookup)
 
       coords.each do |coord|
@@ -109,6 +111,7 @@ class PokemonFinder
 
   def loop
     while true
+      @service = nil
       @spiral ? find_spiral : find_all
       puts "-"*120
       sleep 60
@@ -139,7 +142,7 @@ class PokemonFinder
         if pokemon_data[pokemon[:encounter_id]].blank? && !@logged_pokemons.include?(poke_data)
           puts "#{poke_data}"
 
-          if pokemon_id.to_s.in?(PokemonData::RARE) && disappears_at != "UNKNOWN"
+          if disappears_at != "UNKNOWN" && pokemon_id.to_s.in?(PokemonData::RARE)
             # switch to LEGEND at night time, RARE otherwise
             if pokemon_id.to_s.in? PokemonData::RARE
               sms_fu = SMSFu::Client.configure(delivery: :pony, pony_config: Pony.options)
@@ -155,8 +158,8 @@ class PokemonFinder
 
         pokemon_data[pokemon[:encounter_id]] = poke_data
       end
+      sleep 5
     end
-    sleep 5
   end
 
   def generate_spiral(starting_lat, starting_lng, step_size, step_limit)
