@@ -1,8 +1,13 @@
-# finder = PokemonFinder.new(:work); finder.loop
+# finder = PokemonFinder.new(location: :work); finder.loop
+# finder = PokemonFinder.new(location: :work, spiral: true, step_size: 0.001, step_limit: 29, skip_path_lookup: false); finder.loop
+require 'poke-api'
 
 class PokemonFinder
-  def initialize(location, skip_path_lookup = true)
+  def initialize(location:, spiral: false, step_size: 0.001, step_limit: 29, skip_path_lookup: false)
     @location = location
+    @spiral = spiral
+    @step_size = step_size
+    @step_limit = step_limit
     @skip_path_lookup = skip_path_lookup
     @logged_pokemons = []
     @place, @lat, @lng = nil
@@ -67,10 +72,10 @@ class PokemonFinder
   end
 
   def find_all
-    places.each do |coord|
-      @lat = coord[0]
-      @lng = coord[1]
-      @place = coord[2]
+    places.each do |place|
+      @lat = place[0]
+      @lng = place[1]
+      @place = place[2]
 
       puts "\n#{@place}: "
 
@@ -82,9 +87,29 @@ class PokemonFinder
     end
   end
 
+  def find_spiral
+    places.each do |place|
+      coords = generate_spiral(place[0], place[1], @step_size, @step_limit)
+
+      print "\n#{place[2]}: "
+      print_google_maps_path(coords, @skip_path_lookup)
+
+      coords.each do |coord|
+        @lat = coord[:lat]
+        @lng = coord[:lng]
+
+        begin
+          find
+        rescue => e
+          puts e.inspect
+        end
+      end
+    end
+  end
+
   def loop
     while true
-      find_all
+      @spiral ? find_spiral : find_all
       puts "-"*120
       sleep 60
     end
@@ -131,5 +156,48 @@ class PokemonFinder
         pokemon_data[pokemon[:encounter_id]] = poke_data
       end
     end
+  end
+
+  def generate_spiral(starting_lat, starting_lng, step_size, step_limit)
+    coords = [{ lat: starting_lat, lng: starting_lng }]
+    steps = 1
+    x = 0
+    y = 0
+    d = 1
+    m = 1
+    rlow = 0.0
+    rhigh = 0.0005
+
+    while steps < step_limit
+      while 2 * x * d < m && steps < step_limit
+        x += d
+        steps += 1
+        lat = x * step_size + starting_lat + rand * ((rlow - rhigh) + rlow)
+        lng = y * step_size + starting_lng + rand * ((rlow - rhigh) + rlow)
+        coords << { lat: lat, lng: lng }
+      end
+      while 2 * y * d < m && steps < step_limit
+        y += d
+        steps += 1
+        lat = x * step_size + starting_lat + rand * ((rlow - rhigh) + rlow)
+        lng = y * step_size + starting_lng + rand * ((rlow - rhigh) + rlow)
+        coords << { lat: lat, lng: lng }
+      end
+
+      d = -1 * d
+      m += 1
+    end
+
+    coords
+  end
+
+  def print_google_maps_path(coords, skip_path_lookup = false)
+    puts '' and return if skip_path_lookup
+
+    url_string = 'http://maps.googleapis.com/maps/api/staticmap?size=400x400&path='
+    coords.each { |c| url_string += "#{c[:lat]},#{c[:lng]}|" }
+
+    path = HTTPClient.new.get("http://tinyurl.com/api-create.php?url=#{url_string[0..-2]}").body
+    puts path
   end
 end
