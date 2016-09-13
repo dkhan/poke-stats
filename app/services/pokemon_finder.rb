@@ -1,5 +1,5 @@
-# finder = PokemonFinder.new(location: :work); finder.loop
-# finder = PokemonFinder.new(location: :work, spiral: true, step_size: 0.001, step_limit: 29, skip_path_lookup: false); finder.loop
+# finder = PokemonFinder.new(location: :home); finder.loop
+# finder = PokemonFinder.new(location: :home, spiral: true, step_size: 0.0005, step_limit: 29, skip_path_lookup: false); finder.loop
 require 'poke-api'
 
 class PokemonFinder
@@ -156,6 +156,7 @@ class PokemonFinder
         pokemon_data[pokemon[:encounter_id]] = poke_data
       end
     end
+    sleep 5
   end
 
   def generate_spiral(starting_lat, starting_lng, step_size, step_limit)
