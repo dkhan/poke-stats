@@ -1,8 +1,10 @@
 # finder = PokemonFinder.new(location: :work); finder.loop
+# finder = PokemonFinder.new(location: :home); finder.loop
 # finder = PokemonFinder.new(location: :work, spiral: true, step_size: 0.001, step_limit: 19, skip_path_lookup: false); finder.loop
+# finder = PokemonFinder.new(location: :home, spiral: true, step_size: 0.001, step_limit: 19, skip_path_lookup: false); finder.loop
 # finder = PokemonFinder.new(location: :point, spiral: true, step_size: 0.001, step_limit: 29, skip_path_lookup: false); finder.loop
 # finder = PokemonFinder.new(location: :eliza, spiral: true, step_size: 0.001, step_limit: 29, skip_path_lookup: false); finder.loop
-# finder = PokemonFinder.new(location: :city, spiral: true, step_size: 0.0015, step_limit: 499, skip_path_lookup: true); finder.loop
+# finder = PokemonFinder.new(location: :city, spiral: true, step_size: 0.0015, step_limit: 199, skip_path_lookup: true); finder.loop
 # finder = PokemonFinder.new(location: :budapest, spiral: true, step_size: 0.0015, step_limit: 49, skip_path_lookup: false); finder.loop
 require 'poke-api'
 
@@ -145,14 +147,14 @@ class PokemonFinder
         if pokemon_data[pokemon[:encounter_id]].blank? && !@logged_pokemons.include?(poke_data)
           puts "#{poke_data}"
 
-          if disappears_at != "UNKNOWN" && pokemon_id.to_s.in?(PokemonData::RARE)
-            # switch to LEGEND at night time, RARE otherwise
-            if pokemon_id.to_s.in? PokemonData::RARE
-              sms_fu = SMSFu::Client.configure(delivery: :pony, pony_config: Pony.options)
-              sms_fu.deliver(ENV['GODKID_PHONE'], "at&t", poke_data) unless @location.in? [:eliza, :budapest]
-              sms_fu.deliver(ENV['KISSKA_PHONE'], "at&t", poke_data) if @location.in? [:eliza, :home]
-            end
+          # switch to LEGEND at night time, RARE otherwise
+          if (pokemon_id.to_s.in? PokemonData::RARE && disappears_at != "UNKNOWN") || pokemon_id.to_s.in? PokemonData::LEGEND
+            sms_fu = SMSFu::Client.configure(delivery: :pony, pony_config: Pony.options)
+            sms_fu.deliver(ENV['GODKID_PHONE'], "at&t", poke_data) unless @location.in? [:eliza, :budapest]
+            sms_fu.deliver(ENV['KISSKA_PHONE'], "at&t", poke_data) if @location.in? [:eliza, :home]
+          end
 
+          if disappears_at != "UNKNOWN" && pokemon_id.to_s.in?(PokemonData::RARE)
             notify_slack(ENV['GODKID_SLACK_URL'], @location, slack_poke_data)
             notify_slack(ENV['AUTODESK_SLACK_URL'], "boston-pokemongo", slack_poke_data) if @location == :work
           end
