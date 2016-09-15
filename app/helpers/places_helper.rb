@@ -108,6 +108,6 @@ module PlacesHelper
   ].freeze
 
   POINT = [
-    [42.6617970542,-71.1433662324, "point search"],
+    [42.6523459545,-71.1433662324, "point search"],
   ].freeze
 end

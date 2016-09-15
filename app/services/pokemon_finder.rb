@@ -147,7 +147,7 @@ class PokemonFinder
         if pokemon_data[pokemon[:encounter_id]].blank? && !@logged_pokemons.include?(poke_data)
           puts "#{poke_data}"
 
-          if pokemon_id.to_s.in?(PokemonData::LEGEND) # || (!pokemon_id.to_s.in?(PokemonData::COMMON) && disappears_at != "UNKNOWN")
+          if pokemon_id.to_s.in?(PokemonData::LEGEND) || (!pokemon_id.to_s.in?(PokemonData::COMMON) && disappears_at != "UNKNOWN")
             sms_fu = SMSFu::Client.configure(delivery: :pony, pony_config: Pony.options)
             sms_fu.deliver(ENV['GODKID_PHONE'], "at&t", poke_data) unless @location.in? [:eliza, :budapest]
             sms_fu.deliver(ENV['KISSKA_PHONE'], "at&t", poke_data) if @location.in? [:eliza, :home]
