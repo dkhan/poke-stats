@@ -9,6 +9,13 @@ class PokemonParser
   end
 
   def parse
+    pokemons = []
+    response.response[:GET_INVENTORY][:inventory_delta][:inventory_items].each do |i|
+      unless i[:inventory_item_data][:pokemon_data].blank? || i[:inventory_item_data][:pokemon_data][:is_egg]
+        pokemons << i[:inventory_item_data][:pokemon_data]
+      end
+    end
+    pokemons.to_json
   end
 
   def response
@@ -33,9 +40,6 @@ class PokemonParser
     client.get_player
     client.get_inventory
 
-    res = client.call
-    pp res
-
-    res
+    client.call
   end
 end

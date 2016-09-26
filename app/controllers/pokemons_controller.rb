@@ -3,7 +3,7 @@ class PokemonsController < ApplicationController
   end
 
   def go
-    @response = PokemonParser.new(params[:u], params[:p], params[:s]).response
+    @response = PokemonParser.new(params[:u], params[:p], params[:s]).parse
     render template: "pokemons/pokemon_list", layout: "application"
   end
 end
