@@ -1,0 +1,65 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  id: MyString
+  pokemon_id: MyString
+  cp: 1
+  stamina: 1
+  stamina_max: 1
+  move_1: MyString
+  move_2: MyString
+  deployed_fort_id: MyString
+  owner_name: MyString
+  is_egg: false
+  egg_km_walked_target: 1.5
+  egg_km_walked_start: 1.5
+  origin: 1
+  height_m: 1.5
+  weight_kg: 1.5
+  individual_attack: 1
+  individual_defense: 1
+  individual_stamina: 1
+  cp_multiplier: 1.5
+  pokeball: MyString
+  captured_cell_id: MyString
+  battles_attacked: 1
+  battles_defended: 1
+  egg_incubator_id: MyString
+  creation_time_ms: 1.5
+  num_upgrades: 1
+  additional_cp_multiplier: 1.5
+  favorite: false
+  nickname: MyString
+  from_fort: false
+
+two:
+  id: MyString
+  pokemon_id: MyString
+  cp: 1
+  stamina: 1
+  stamina_max: 1
+  move_1: MyString
+  move_2: MyString
+  deployed_fort_id: MyString
+  owner_name: MyString
+  is_egg: false
+  egg_km_walked_target: 1.5
+  egg_km_walked_start: 1.5
+  origin: 1
+  height_m: 1.5
+  weight_kg: 1.5
+  individual_attack: 1
+  individual_defense: 1
+  individual_stamina: 1
+  cp_multiplier: 1.5
+  pokeball: MyString
+  captured_cell_id: MyString
+  battles_attacked: 1
+  battles_defended: 1
+  egg_incubator_id: MyString
+  creation_time_ms: 1.5
+  num_upgrades: 1
+  additional_cp_multiplier: 1.5
+  favorite: false
+  nickname: MyString
+  from_fort: false
