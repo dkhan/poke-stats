@@ -9,7 +9,7 @@
   </head>
 
   <body>
-    <%= form_tag({ controller: "pokemons", action: "go" }, method: "get") do %>
+    <%= form_tag({ controller: "pokemons", action: "go" }, method: "post") do %>
       <%= select_tag(:s, options_for_select([['google', 'google'], ['ptc', 'ptc']], 'google')) %>
       <%= text_field_tag(:u) %>
       <%= text_field_tag(:p) %>

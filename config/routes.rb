@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
   get 'pokemons/index'
-  get 'pokemons/go'
+  post 'pokemons/go'
 
   root 'pokemons#index'
 end
