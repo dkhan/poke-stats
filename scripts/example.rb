@@ -11,13 +11,12 @@ client = Poke::API::Client.new
 # or using client.lat = 10, client.lng = 10, client.alt = 10
 # client.store_location('New York')
 
-lat, lng = 42.663513215023904,-71.1449908568606
+lat, lng = 42.344371, -71.029461 # office
 client.store_lat_lng(lat, lng)
 
 # Use Google auth with 'username@gmail.com', 'password', 'google'
 # Optionally set your Google Refresh token using client.refresh_token = 'my-token'
 client.login(ENV['PKGO_EMAIL'], ENV['PKGO_PASSWORD'], 'google')
-
 
 # Activate the encryption method to generate a signature
 # Where path is the path to your encrypt .so/.dll

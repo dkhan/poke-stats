@@ -1,3 +1,6 @@
 SNORLAX:
 
 CHELMSFORD http://maps.google.com/?q=42.61489292872059,-71.35335044701056 disappears @ 09/10/2016 07:04PM
+ANDOVER http://maps.google.com/?q=42.6486060,-71.1824018 disappears @ 09/16/2016 05:39AM # IRS (Close to 133)
+ANDOVER http://maps.google.com/?q=42.6674197,-71.1644858 disappears @ 09/17/2016 00:24AM # Andover Country Club Ln
+ANDOVER http://maps.google.com/?q=42.650666,-71.176255 # Wild Rose Dr

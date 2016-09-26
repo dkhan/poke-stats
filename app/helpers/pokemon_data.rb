@@ -96,7 +96,7 @@ module PokemonData
     MEW
   )
 
-  RARE = %(
+  RARE = %w(
     ABRA
     GEODUDE
     EKANS

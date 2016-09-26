@@ -1,5 +1,6 @@
 module PlacesHelper
   HOME = [
+    [42.673136638556706,-71.14341265037436, "Enmore St"], # EEVEE
     [42.671908980549155,-71.1379352968859, "Olde Berry Rd - S"],
     [42.67310580146113,-71.13802813401412, "Olde Berry Rd - N"], # DRATINI
     #[42.67190376384465,-71.13747111091996, "Olde Berry Rd 1"],
@@ -55,9 +56,10 @@ module PlacesHelper
     [42.66399966253818,-71.15826610976004, "Cindy Ln"], # EXEGGCUTE
     [42.65864318991865,-71.15325312950287, "West Middle School"], # SCYTHER
     [42.656277867973294,-71.15975142503243, "Miles Cir"], # GROWLITHE
-    [42.660195, -71.161008, "Leah Way"], # SNORLAX
-    [42.650666, -71.176255, "Wild Rose Dr"], # SNORLAX
-    [42.673136638556706,-71.14341265037436, "Enmore St"], # EEVEE
+    [42.660195,-71.161008, "Leah Way"], # SNORLAX
+    [42.650666,-71.176255, "Wild Rose Dr"], # SNORLAX
+    [42.6674197,-71.1644858, "Andover Country Club"], # SNORLAX
+    [42.6486060,-71.1824018, "IRS"], # SNORLAX
     [42.67201337194757,-71.14461951472231, "Argyle St"], # BULBASAUR
     [42.65141684779342,-71.15418146397418, "Indian Ridge Res"], # GROWLITHE
     [42.66041390090952,-71.13719259908058, "Elm St"], # DRATINI
@@ -103,11 +105,7 @@ module PlacesHelper
 
   ].freeze
 
-  BUDAPEST = [
-    [47.508268, 19.059583, "Budapest, Hungary"],
-  ].freeze
-
   POINT = [
-    [42.6523459545,-71.1433662324, "point search"],
+    [42.663513215023904,-71.1449908568606, "Point"],
   ].freeze
 end

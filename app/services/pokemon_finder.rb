@@ -3,9 +3,8 @@
 # finder = PokemonFinder.new(location: :work, spiral: true, step_size: 0.001, step_limit: 5, skip_path_lookup: false); finder.loop
 # finder = PokemonFinder.new(location: :home, spiral: true, step_size: 0.001, step_limit: 5, skip_path_lookup: false); finder.loop
 # finder = PokemonFinder.new(location: :point, spiral: true, step_size: 0.001, step_limit: 29, skip_path_lookup: false); finder.loop
-# finder = PokemonFinder.new(location: :eliza, spiral: true, step_size: 0.0015, step_limit: 9, skip_path_lookup: false); finder.loop
-# finder = PokemonFinder.new(location: :city, spiral: true, step_size: 0.0025, step_limit: 99, skip_path_lookup: true); finder.loop
-# finder = PokemonFinder.new(location: :budapest, spiral: true, step_size: 0.0015, step_limit: 99, skip_path_lookup: false); finder.loop
+# finder = PokemonFinder.new(location: :eliza, spiral: true, step_size: 0.0015, step_limit: 19, skip_path_lookup: false); finder.loop
+# finder = PokemonFinder.new(location: :city, spiral: true, step_size: 0.0025, step_limit: 49, skip_path_lookup: true); finder.loop
 require 'poke-api'
 
 class PokemonFinder
@@ -27,7 +26,6 @@ class PokemonFinder
     when :city then PlacesHelper::CITY
     when :castle then PlacesHelper::CASTLE
     when :point then PlacesHelper::POINT
-    when :budapest then PlacesHelper::BUDAPEST
     end
   end
 
@@ -79,7 +77,10 @@ class PokemonFinder
   end
 
   def find_all
-    places.each do |place|
+    places.each_with_index do |place, i|
+      if i % 5 == 0
+        @service = nil
+      end
       @lat = place[0]
       @lng = place[1]
       @place = place[2]
@@ -95,7 +96,10 @@ class PokemonFinder
   end
 
   def find_spiral
-    places.each do |place|
+    places.each_with_index do |place, i|
+      if i % 5 == 0
+        @service = nil
+      end
       coords = generate_spiral(place[0], place[1], @step_size, @step_limit)
 
       print "\n#{place[2]} (started @ #{Time.now.strftime("%m/%d/%Y %I:%M%p")}): "
@@ -147,9 +151,9 @@ class PokemonFinder
         if pokemon_data[pokemon[:encounter_id]].blank? && !@logged_pokemons.include?(poke_data)
           puts "#{poke_data}"
 
-          if pokemon_id.to_s.in?(PokemonData::LEGEND) || (!pokemon_id.to_s.in?(PokemonData::COMMON) && disappears_at != "UNKNOWN")
+          if pokemon_id.to_s.in?(PokemonData::LEGEND) # || (!pokemon_id.to_s.in?(PokemonData::COMMON) && disappears_at != "UNKNOWN")
             sms_fu = SMSFu::Client.configure(delivery: :pony, pony_config: Pony.options)
-            sms_fu.deliver(ENV['GODKID_PHONE'], "at&t", poke_data) unless @location.in? [:eliza, :budapest]
+            sms_fu.deliver(ENV['GODKID_PHONE'], "at&t", poke_data) unless @location.in? [:eliza]
             sms_fu.deliver(ENV['KISSKA_PHONE'], "at&t", poke_data) if @location.in? [:eliza, :home]
           end
 
@@ -162,7 +166,7 @@ class PokemonFinder
 
         pokemon_data[pokemon[:encounter_id]] = poke_data
       end
-      sleep 5
+      sleep 8
     end
   end
 
