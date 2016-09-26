@@ -28,9 +28,6 @@ gem 'jbuilder', '~> 2.5'
 # gem 'bcrypt', '~> 3.1.7'
 gem 'mysql2'
 
-gem "wice_grid", '3.6.0.pre4'
-gem 'font-awesome-sass',  '~> 4.3'
-
 gem 'poke-go-api',
   git: "https://github.com/nabeelamjad/poke-api.git",
   tag: '0.2.1'
